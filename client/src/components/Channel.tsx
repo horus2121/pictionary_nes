@@ -1,6 +1,6 @@
 export const Channel = () => {
     return (
-        <div className="row-start-7 col-start-2 col-span-5">
+        <div className="row-start-7 col-start-2 col-span-5 mb-12">
             <div className="nes-container h-40 overflow-scroll">
                 <div className="message-list">
                     <div className="message -left">

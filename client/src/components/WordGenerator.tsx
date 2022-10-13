@@ -6,7 +6,7 @@ export const WordGenerator = () => {
             </span>
 
             <span className="nes-texty">
-                Elephant
+                Apple
             </span>
         </div>
     )
