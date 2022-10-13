@@ -60,10 +60,11 @@ export const Canvas = () => {
         ctx.lineTo(clientX - offsetLeft, clientY - offsetTop)
         ctx.stroke()
     }
+
     return (
-        <div className="nes-container with-title is-centered">
-            <p className="title">Container.is-centered</p>
-            <p>Good morning. Thou hast had a good night's sleep, I hope.</p>
+        <div className="nes-container with-title is-centered col-start-2 col-span-5 row-start-2 row-span-4">
+            <p className="title">Canvas</p>
+            <p>Hey there. Draw something right hereeee.</p>
             <canvas></canvas>
         </div>
     )
