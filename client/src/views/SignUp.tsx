@@ -1,6 +1,6 @@
 export const SignUp = () => {
     return (
-        <div className='grid grid-cols-3 m-5'>
+        <div className='grid grid-cols-3 m-5 absolute top-1/4'>
             <span className="nes-text col-start-2 row-start-1">Pictionary</span>
 
             <div className="col-start-2 row-start-2">

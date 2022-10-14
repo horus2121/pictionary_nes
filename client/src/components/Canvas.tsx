@@ -47,7 +47,7 @@ export const Canvas = () => {
 
 
     const startDrawing = ({ nativeEvent }: any) => {
-        const { clientX, clientY, target: { offsetLeft, offsetTop } } = nativeEvent
+        const { offsetX, offsetY } = nativeEvent
         console.log(nativeEvent)
 
         if (!canvasRef.current) return
@@ -56,7 +56,8 @@ export const Canvas = () => {
 
         if (!ctx) return
         ctx.beginPath()
-        ctx.moveTo(clientX - offsetLeft, clientY - offsetTop)
+        // ctx.moveTo(clientX - offsetLeft, clientY - offsetTop)
+        ctx.moveTo(offsetX, offsetY)
         setIsDrawing(true)
     }
 
@@ -73,14 +74,15 @@ export const Canvas = () => {
     const draw = ({ nativeEvent }: any) => {
         if (!isDrawing) return
 
-        const { clientX, clientY, target: { offsetLeft, offsetTop } } = nativeEvent
+        const { offsetX, offsetY } = nativeEvent
 
         if (!canvasRef.current) return
         const canvas = canvasRef.current
         const ctx = canvas.getContext('2d')
 
         if (!ctx) return
-        ctx.lineTo(clientX - offsetLeft, clientY - offsetTop)
+        // ctx.lineTo(clientX - offsetLeft, clientY - offsetTop)
+        ctx.lineTo(offsetX, offsetY)
         ctx.stroke()
     }
 
