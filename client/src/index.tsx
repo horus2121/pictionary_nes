@@ -5,14 +5,18 @@ import { store } from './app/store';
 import { App } from './App';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
+import actionCable from 'actioncable'
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 
+const CableApp: any = {}
+CableApp.cable = actionCable.createConsumer('ws://localhost:3000/cable')
+
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <App cable={CableApp.cable} />
     </Provider>
   </React.StrictMode>
 );
