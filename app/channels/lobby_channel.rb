@@ -4,7 +4,6 @@ class LobbyChannel < ApplicationCable::Channel
   end
 
   def receive(data)
-    puts data
     ActionCable.server.broadcast "lobby_#{params[:lobby_id]}", data
   end
 

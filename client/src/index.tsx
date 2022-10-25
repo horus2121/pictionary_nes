@@ -1,11 +1,13 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { store } from './app/store';
-import { App } from './App';
 import reportWebVitals from './reportWebVitals';
-import './index.css';
 import actionCable from 'actioncable'
+import { PersistGate } from 'redux-persist/es/integration/react'
+import './index.css';
+
+import { persistor, store } from './app/store'
+import { App } from './App';
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
@@ -16,7 +18,9 @@ CableApp.cable = actionCable.createConsumer('ws://localhost:3000/cable')
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App cable={CableApp.cable} />
+      <PersistGate loading={null} persistor={persistor}>
+        <App cable={CableApp.cable} />
+      </PersistGate>
     </Provider>
   </React.StrictMode>
 );

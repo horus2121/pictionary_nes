@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react"
-import ActionCable, { createConsumer } from "actioncable"
+import ActionCable from "actioncable"
 import { lobbyChannel } from "../channels/lobby_channel"
-
-const consumer = ActionCable.createConsumer("ws://localhost:3000/cable")
 
 export const Lobby = () => {
     const [lobbies, setLobbies] = useState([])
     const [currentLobby, setCurrentLobby] = useState(null)
     const [message, setMessage] = useState('')
+    const [upstream, setUpstream] = useState('')
+
+    const cable = ActionCable.createConsumer('ws://localhost:3000/cable')
 
     useEffect(() => {
 
@@ -18,14 +19,20 @@ export const Lobby = () => {
 
     }, [lobbies])
 
-    useEffect(() => {
-
-        const cable = ActionCable.createConsumer('ws://localhost:3000/cable')
+    const handleConnection = (handlers: any) => {
 
         const params = {
             channel: "LobbyChannel",
             lobby_id: currentLobby
         }
+
+        const sub = cable.subscriptions.create(params, handlers)
+
+        return sub
+
+    }
+
+    useEffect(() => {
 
         const handlers = {
             connected() {
@@ -42,9 +49,7 @@ export const Lobby = () => {
             }
         }
 
-        const sub = cable.subscriptions.create(params, handlers)
-
-        sub.send("something")
+        const sub = handleConnection(handlers)
 
         return () => {
             console.log("Unsubbing from Lobby", currentLobby)
@@ -83,6 +88,24 @@ export const Lobby = () => {
 
     }
 
+    const handleClick = () => {
+
+        const messageSendingHandlers = {
+            connected() {
+                sub.send({ message: upstream })
+            },
+
+            disconnected() {
+            },
+
+            received() {
+            }
+        }
+
+        const sub = handleConnection(messageSendingHandlers)
+
+    }
+
     return (
         <>
             <button onClick={handleCreateLobby}>Create Lobby</button>
@@ -92,6 +115,8 @@ export const Lobby = () => {
                 }
             </div>
             <p>Message from server: {message}</p>
+            <input type="text" onChange={(e) => setUpstream(e.target.value)} />
+            <button onClick={handleClick}>Send</button>
         </>
     )
 }

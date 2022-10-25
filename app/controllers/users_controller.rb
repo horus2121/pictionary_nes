@@ -2,7 +2,11 @@ class UsersController < ApplicationController
     skip_before_action :logged_in?, only: [:create]
 
     def create
-        user = User.create!(user_params)
+        if user_params.include? :type
+            user = User.create!(user_params)
+        else
+            user = User.create!(user_params.merge(authority: 'regular'))
+        end
 
         if user
             session[:current_user_id] = user.id
@@ -23,6 +27,8 @@ class UsersController < ApplicationController
     private
 
     def user_params
-        params.require(:user).permit(:username, :type, :password, :password_confirmation)
+        params
+        .require(:user)
+        .permit(:username, :authority, :password, :password_confirmation)
     end
 end
