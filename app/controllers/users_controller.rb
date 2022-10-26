@@ -1,6 +1,9 @@
 class UsersController < ApplicationController
     skip_before_action :logged_in?, only: [:create]
 
+    rescue_from ActiveRecord::RecordNotFound, with: :render_record_not_found
+    rescue_from ActiveRecord::RecordInvalid, with: :render_record_invalid
+
     def create
         if user_params.include? :type
             user = User.create!(user_params)
@@ -30,5 +33,13 @@ class UsersController < ApplicationController
         params
         .require(:user)
         .permit(:username, :authority, :password, :password_confirmation)
+    end
+
+    def render_record_not_found
+        render json: { status: "Record Not Found." }
+    end
+
+    def render_record_invalid
+        render json: { status: "Record Invalid." }
     end
 end

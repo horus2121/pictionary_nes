@@ -16,7 +16,11 @@ export const SignUp = () => {
     const handleSubmit = (event: any) => {
         event.preventDefault();
 
-        const user = { username: username, password: password, password_confirmation: passwordConfirmation }
+        const user = {
+            username: username,
+            password: password,
+            password_confirmation: passwordConfirmation
+        }
         setUsername("")
         setPassword("")
         setPasswordConfirmation("")

@@ -1,11 +1,61 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useAppDispatch, useAppSelector } from "../app/hooks"
+import { RootState } from "../app/store"
+import { CreateLobby } from "../features/lobbiesSlice"
 
 export const PreGame = () => {
+    const dispatch = useAppDispatch()
+    const navigate = useNavigate()
+    const lobbyID = useAppSelector((state: RootState) => state.lobbies.id)
+    const [id, setID] = useState<number | null>(null)
+    const [lobbyList, setLobbyList] = useState([])
+
     const [onNewLobby, setOnNewLobby] = useState(true)
+    const [title, setTitle] = useState('')
+    const [description, setDescription] = useState('')
+    const [password, setPassword] = useState('')
     const [mode, setMode] = useState('')
 
-    const handleModeSelection = (e: any) => {
-        setMode(e.target.value)
+    useEffect(() => {
+
+        fetch('/lobbies')
+            .then(res => res.json())
+            .then(json => setLobbyList(json.lobbies))
+            .catch(error => console.log(error))
+
+    }, [lobbyList])
+
+    useEffect(() => {
+        if (lobbyID !== null && lobbyID !== id)
+            setID(lobbyID)
+
+        if (id !== null)
+            navigate('/lobbies/' + id)
+    }, [lobbyID, id])
+
+    const handleCreateLobby = () => {
+
+        const lobby = {
+            title: title,
+            description: description,
+            password: password,
+            mode: mode
+        }
+        setTitle('')
+        setDescription('')
+        setPassword('')
+        setMode('')
+
+        dispatch(CreateLobby(lobby))
+    }
+
+    const handleLobbySelection = (e: any) => {
+        navigate('/lobbies/' + e.target.value)
+    }
+
+    const handleQuitGame = () => {
+        navigate('/')
     }
 
     return (
@@ -30,28 +80,28 @@ export const PreGame = () => {
                 <div className="nes-container lists col-start-2 row-start-4">
                     <span className="nes-text col-start-2 row-start-2">Lobby List:</span>
                     <ul className="nes-list is-circle">
-                        <li>Lobby 1</li>
-                        <li>Lobby 2</li>
-                        <li>Lobby 3</li>
-                        <li>Lobby 4</li>
+                        {
+                            lobbyList.map((lobby: any) =>
+                                <li key={lobby.id} value={lobby.id} onClick={handleLobbySelection}>Lobby {lobby.id}</li>)
+                        }
                     </ul>
                 </div>
                 :
                 <div className="col-start-2 row-start-5">
 
                     <div className="nes-field">
-                        <label htmlFor="name_field">Lobby Title</label>
-                        <input type="text" id="name_field" className="nes-input" />
+                        <label htmlFor="title">Lobby Title</label>
+                        <input type="text" id="title" className="nes-input" onChange={(e) => setTitle(e.target.value)} />
                     </div>
 
                     <div className="nes-field">
-                        <label htmlFor="name_field">Description</label>
-                        <input type="text" id="name_field" className="nes-input" />
+                        <label htmlFor="description">Description</label>
+                        <input type="text" id="description" className="nes-input" onChange={(e) => setDescription(e.target.value)} />
                     </div>
 
-                    <label htmlFor="default_select">Select Mode</label>
+                    <label htmlFor="mode">Select Mode</label>
                     <div className="nes-select">
-                        <select required id="default_select" defaultValue="" onChange={handleModeSelection} >
+                        <select required id="mode" defaultValue="" onChange={(e) => setMode(e.target.value)} >
                             <option value="" disabled hidden>Select...</option>
                             <option value="public" >Public</option>
                             <option value="private" >Private</option>
@@ -59,20 +109,16 @@ export const PreGame = () => {
                     </div>
 
                     <div className="nes-field">
-                        <label htmlFor="name_field">Password</label>
-                        <input type="text" id="name_field" className="nes-input" />
+                        <label htmlFor="password">Password</label>
+                        <input type="password" id="password" className="nes-input" onChange={(e) => setPassword(e.target.value)} />
                     </div>
                 </div>
             }
 
             <div className="grid grid-cols-2 col-start-2 row-start-6 mt-5">
-                <a href="/ingame" className="col-start-1">
-                    <button type="button" className="nes-btn is-primary">Create Lobby</button>
-                </a>
+                <button type="button" className="nes-btn is-primary" onClick={handleCreateLobby}>Create Lobby</button>
 
-                <a href="/" className="col-start-2">
-                    <button type="button" className="nes-btn is-error">Quit Game</button>
-                </a>
+                <button type="button" className="nes-btn is-error" onClick={handleQuitGame}>Quit Game</button>
             </div>
 
         </div>

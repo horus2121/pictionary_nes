@@ -7,12 +7,15 @@ const eraserCursor = "url('https://img.icons8.com/metro/26/undefined/eraser.png'
 const getWidth = () => window.innerWidth
 const getHeight = () => window.innerHeight
 
-export const Canvas = () => {
+export const Canvas = (props: any) => {
+
+    const { handleUpstream } = props
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const [isDrawing, setIsDrawing] = useState(false)
     const [eraserOn, setEraserOn] = useState(false);
     const [windowWidth, setWindowWidth] = useState(getWidth())
     const [windowHeight, setWindowHeight] = useState(getHeight())
+    const [canvasData, setCanvasData] = useState<void | {}>({})
 
     useEffect(() => {
         if (!canvasRef.current) return
@@ -27,6 +30,7 @@ export const Canvas = () => {
         ctx.strokeStyle = "black"
         ctx.lineWidth = 2
         canvasRef.current.style.cursor = penCursor
+
     }, [windowWidth, windowHeight]
     )
 
@@ -45,10 +49,8 @@ export const Canvas = () => {
         }
     }, [windowWidth, windowHeight])
 
-
     const startDrawing = ({ nativeEvent }: any) => {
         const { offsetX, offsetY } = nativeEvent
-        console.log(nativeEvent)
 
         if (!canvasRef.current) return
         const canvas = canvasRef.current
@@ -143,6 +145,16 @@ export const Canvas = () => {
         if (!ctx) return
         ctx.lineWidth = nativeEvent.target.value;
     }
+
+    useEffect(() => {
+        if (!canvasRef.current) return
+        const canvas = canvasRef.current
+
+        setCanvasData(canvas.toDataURL())
+        console.log(canvasData)
+        handleUpstream(canvasData)
+
+    }, [startDrawing, draw, endDrawing, bin])
 
     return (
         <>

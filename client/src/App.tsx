@@ -24,7 +24,7 @@ export const App = (props: Props) => {
           <Route index element={<Login />} />
           <Route path='signup' element={<SignUp />} />
           <Route path='pregame' element={user.isLoggedIn ? <PreGame /> : <Login />} />
-          <Route path='ingame' element={user.isLoggedIn ? <Game /> : <Login />} />
+          <Route path='lobbies/:id' element={user.isLoggedIn ? <Game /> : <Login />} />
         </Route>
       </Routes>
     </Router>
