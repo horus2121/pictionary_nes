@@ -6,6 +6,7 @@ import { Canvas } from "../components/Canvas";
 import { Channel } from "../components/Channel";
 import { ScoreBoard } from "../components/ScoreBoard";
 import { WordGenerator } from "../components/WordGenerator";
+import { PlayerList } from "../components/PlayerList";
 
 export const Game = () => {
     const currentLobby = useParams()
@@ -17,7 +18,8 @@ export const Game = () => {
 
         const params = {
             channel: "LobbyChannel",
-            lobby_id: currentLobby
+            lobby_id: currentLobby,
+            user_id: 1
         }
 
         const sub = cable.subscriptions.create(params, handlers)
@@ -69,8 +71,10 @@ export const Game = () => {
         const sub = handleConnection(messageSendingHandlers)
 
     }
+
     return (
         <div className='grid grid-cols-7 gap-3'>
+            {/* <PlayerList /> */}
             <WordGenerator />
             <Canvas handleUpstream={handleUpstream} />
             <ScoreBoard />

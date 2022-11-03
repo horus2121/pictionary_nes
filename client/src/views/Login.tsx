@@ -1,18 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../app/hooks";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { RootState } from "../app/store";
 import { loginUser } from "../features/usersSlice";
 
 export const Login = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate()
+    const user = useAppSelector((state: RootState) => state.users)
 
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
+    useEffect(() => {
+        console.log(user)
+        if (user.isLoggedIn) {
+            navigate('/pregame')
+        }
+    }, [])
 
-    const handleLogin = (event: any) => {
-        event.preventDefault();
+    const handleStartGame = () => {
 
         let user = { username: username, password: password }
         setUsername("")
@@ -44,7 +51,7 @@ export const Login = () => {
             </div>
 
             <div className="grid grid-cols-2 col-start-2 row-start-4 mt-5">
-                <button type="button" className="nes-btn is-primary" onClick={handleLogin}>Start Game</button>
+                <button type="button" className="nes-btn is-primary" onClick={handleStartGame}>Start Game</button>
                 <button type="button" className="nes-btn is-success" onClick={handleSignUp}>Sign Up</button>
             </div>
         </div>

@@ -1,13 +1,22 @@
+import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { useAppDispatch } from "../app/hooks"
+import { useAppDispatch, useAppSelector } from "../app/hooks"
+import { RootState } from "../app/store"
 import { quitLobby } from "../features/lobbiesSlice"
+import { logoutUser } from "../features/usersSlice"
 
 export const Nav = () => {
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
+    const lobbyID = useAppSelector((state: RootState) => state.lobbies.id)
+
+    // useEffect(() => {
+    //     if (!lobbyID) navigate('/')
+    // })
 
     const handleQuitGame = () => {
-        dispatch(quitLobby)
+        dispatch(quitLobby())
+        dispatch(logoutUser())
         navigate('/')
     }
 

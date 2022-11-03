@@ -7,15 +7,25 @@ class SessionsController < ApplicationController
         user = User.find_by(username: params[:username])
 
         if user&.authenticate(params[:password])
-            session[:current_user_id] = user.id
 
-            render json: { 
-                logged_in: true, 
-                user: user,
-            }, 
-                status: :created
+            if session[:current_user_id] == user.id
+                render json: { 
+                        error: "Already logged in..."
+                        }, 
+                        status: :unprocessable_entity
+            else
+                session[:current_user_id] = user.id
+
+                render json: { 
+                    logged_in: true, 
+                    user: user,
+                    success: "Successfully logged in..."
+                }, 
+                    status: :created
+            end
+
         else
-            render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+            render json: { error: "Unprocessable user..." }, status: :unprocessable_entity
         end
 
     end
@@ -29,7 +39,9 @@ class SessionsController < ApplicationController
     private
 
     def session_params
-        params.require(:user).permit(:username, :password)
+        params
+        .require(:user)
+        .permit(:username, :password)
     end
 
     def render_record_not_found

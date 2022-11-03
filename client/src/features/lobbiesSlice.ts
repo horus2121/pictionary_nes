@@ -37,8 +37,36 @@ const lobbiesSlice = createSlice({
                 state.description = description
                 state.mode = mode
             }
+        }).addCase(EnterLobby.fulfilled, (state, action) => {
+            console.log("Fulfilled...")
+            console.log(action.payload)
+
+            if (!action.payload.errors) {
+                const { id, title, description, mode } = action.payload.lobby
+
+                state.id = id
+                state.title = title
+                state.description = description
+                state.mode = mode
+            }
         })
     }
+})
+
+export const EnterLobby = createAsyncThunk('lobbies/enterLobby', async (lobby_id: number) => {
+
+    const res = await fetch('/enter_lobby', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            lobby_id: lobby_id
+        })
+    })
+    const json = res.json()
+
+    return json
 })
 
 export const CreateLobby = createAsyncThunk('lobbies/createLobby', async (lobby: any) => {

@@ -5,26 +5,33 @@ class UsersController < ApplicationController
     rescue_from ActiveRecord::RecordInvalid, with: :render_record_invalid
 
     def create
-        if user_params.include? :type
+        
+        if user_params.include? :authority
             user = User.create!(user_params)
         else
             user = User.create!(user_params.merge(authority: 'regular'))
         end
 
+
         if user
             session[:current_user_id] = user.id
 
-            render json: { user: user }, status: :created
+            render json: { 
+                    user: user, 
+                    success: "Successfully signed up..."
+                    }, 
+                    status: :created
         else
-            render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+            render json: { error: "Unprocessable user..." }, status: :unprocessable_entity
         end
 
     end
 
     def show
         user = User.find_by(id: session[:current_user_id])
+        serialized_user = UserSerializer.new(user)
 
-        render json: { user: user }, status: :created
+        render json: { user: serialized_user }, status: :created
     end
 
     private
@@ -36,10 +43,10 @@ class UsersController < ApplicationController
     end
 
     def render_record_not_found
-        render json: { status: "Record Not Found." }
+        render json: { error: "Record Not Found." }
     end
 
     def render_record_invalid
-        render json: { status: "Record Invalid." }
+        render json: { error: "Record Invalid." }
     end
 end

@@ -1,17 +1,19 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-interface State {
+interface InitialState {
     isLoggedIn: boolean,
     id: number | null,
     username: string,
-    authority: string
+    authority: string,
+    userStatus: number | null
 }
 
-const initialState: State = {
+const initialState: InitialState = {
     isLoggedIn: false,
     id: null,
     username: '',
-    authority: ''
+    authority: '',
+    userStatus: null
 }
 
 const usersSlice = createSlice({
@@ -23,6 +25,7 @@ const usersSlice = createSlice({
             state.id = null
             state.username = ''
             state.authority = ''
+            state.userStatus = null
         }
     },
     extraReducers: builder => {
@@ -30,13 +33,16 @@ const usersSlice = createSlice({
             console.log("Loading...")
         }).addCase(loginUser.fulfilled, (state, action) => {
             console.log("Fulfilled...")
-            if (!action.payload.errors) {
+            console.log(action.payload)
+            if (action.payload.success) {
                 const { id, username, authority } = action.payload.user
 
                 state.isLoggedIn = true
                 state.id = id
                 state.username = username
                 state.authority = authority
+            } else {
+                state.userStatus = action.payload.error
             }
         }).addCase(loginUser.rejected, () => {
             console.log("Rejected...")
@@ -45,13 +51,15 @@ const usersSlice = createSlice({
         }).addCase(SignUpUser.fulfilled, (state, action) => {
             console.log("Fullfilled...")
             console.log(action.payload)
-            if (!action.payload.errors) {
+            if (action.payload.success) {
                 const { id, username, authority } = action.payload.user
 
                 state.isLoggedIn = true
                 state.id = id
                 state.username = username
                 state.authority = authority
+            } else {
+                state.userStatus = action.payload.error
             }
         }).addCase(SignUpUser.rejected, () => {
             console.log("Rejected...")
@@ -72,9 +80,8 @@ export const loginUser = createAsyncThunk('users/loginUser', async (user: any) =
             password: user.password
         })
     })
-    const json = res.json()
 
-    return json
+    return res.json()
 })
 
 export const SignUpUser = createAsyncThunk('users/signUpUser', async (user: any) => {
@@ -85,11 +92,9 @@ export const SignUpUser = createAsyncThunk('users/signUpUser', async (user: any)
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            user: {
-                username: user.username,
-                password: user.password,
-                password_confirmation: user.password_confirmation
-            }
+            username: user.username,
+            password: user.password,
+            password_confirmation: user.password_confirmation
         })
     })
     const json = res.json()

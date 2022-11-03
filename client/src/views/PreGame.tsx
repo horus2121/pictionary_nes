@@ -2,7 +2,8 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../app/hooks"
 import { RootState } from "../app/store"
-import { CreateLobby } from "../features/lobbiesSlice"
+import { CreateLobby, EnterLobby } from "../features/lobbiesSlice"
+import { logoutUser } from "../features/usersSlice"
 
 export const PreGame = () => {
     const dispatch = useAppDispatch()
@@ -30,8 +31,10 @@ export const PreGame = () => {
         if (lobbyID !== null && lobbyID !== id)
             setID(lobbyID)
 
-        if (id !== null)
+        if (id !== null) {
             navigate('/lobbies/' + id)
+            setID(null)
+        }
     }, [lobbyID, id])
 
     const handleCreateLobby = () => {
@@ -51,10 +54,12 @@ export const PreGame = () => {
     }
 
     const handleLobbySelection = (e: any) => {
-        navigate('/lobbies/' + e.target.value)
+        dispatch(EnterLobby(e.target.value))
+        setID(null)
     }
 
     const handleQuitGame = () => {
+        dispatch(logoutUser())
         navigate('/')
     }
 
@@ -77,7 +82,7 @@ export const PreGame = () => {
             </div>
 
             {!onNewLobby ?
-                <div className="nes-container lists col-start-2 row-start-4">
+                <div className="nes-container lists col-start-2 row-start-4 h-80 overflow-scroll">
                     <span className="nes-text col-start-2 row-start-2">Lobby List:</span>
                     <ul className="nes-list is-circle">
                         {
