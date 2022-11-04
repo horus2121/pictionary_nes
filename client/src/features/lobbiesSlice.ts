@@ -18,37 +18,43 @@ const lobbiesSlice = createSlice({
     name: 'lobbies',
     initialState,
     reducers: {
-        quitLobby(state) {
-            state.id = null
-            state.title = ''
-            state.description = ''
-            state.mode = ''
-        }
     },
     extraReducers: builder => {
         builder.addCase(CreateLobby.fulfilled, (state, action) => {
             console.log("Fulfilled...")
             console.log(action.payload)
-            if (!action.payload.errors) {
+            if (!action.payload.error) {
                 const { id, title, description, mode } = action.payload.lobby
 
                 state.id = id
                 state.title = title
                 state.description = description
                 state.mode = mode
+            } else {
+                alert(action.payload.error)
             }
+        }).addCase(CreateLobby.rejected, () => {
+            alert("Invalid Lobby set up...")
         }).addCase(EnterLobby.fulfilled, (state, action) => {
             console.log("Fulfilled...")
             console.log(action.payload)
 
-            if (!action.payload.errors) {
+            if (!action.payload.error) {
                 const { id, title, description, mode } = action.payload.lobby
 
                 state.id = id
                 state.title = title
                 state.description = description
                 state.mode = mode
+            } else {
+                alert(action.payload.error)
             }
+        }).addCase(QuitLobby.fulfilled, (state) => {
+
+            state.id = null
+            state.title = ''
+            state.description = ''
+            state.mode = ''
         })
     }
 })
@@ -88,6 +94,20 @@ export const CreateLobby = createAsyncThunk('lobbies/createLobby', async (lobby:
     return json
 })
 
-export const { quitLobby } = lobbiesSlice.actions
+export const QuitLobby = createAsyncThunk('lobbies/quitLobby', async (lobby_id: number) => {
+
+    const res = await fetch('/quit_lobby', {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            lobby_id: lobby_id
+        })
+    })
+    const json = res.json()
+
+    return json
+})
 
 export default lobbiesSlice.reducer

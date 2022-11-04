@@ -1,17 +1,26 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
-import { useAppDispatch } from "../app/hooks"
+import { useAppDispatch, useAppSelector } from "../app/hooks"
+import { RootState } from "../app/store"
 
 import { SignUpUser } from "../features/usersSlice"
 
 export const SignUp = () => {
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
+    const user = useAppSelector((state: RootState) => state.users)
 
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [passwordConfirmation, setPasswordConfirmation] = useState('')
+
+    useEffect(() => {
+
+        if (user.isLoggedIn) {
+            navigate('/pregame')
+        }
+    }, [user, navigate])
 
     const handleSubmit = (event: any) => {
         event.preventDefault();
@@ -25,8 +34,11 @@ export const SignUp = () => {
         setPassword("")
         setPasswordConfirmation("")
 
+        if (document.querySelectorAll('input')) {
+            document.querySelectorAll('input').forEach((input) => input.value = '')
+        }
+
         dispatch(SignUpUser(user))
-        navigate('/')
     }
 
     const handleGoBack = () => {

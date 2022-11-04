@@ -12,7 +12,7 @@ module ApplicationCable
       if verified_user = User.find_by(id: request.session[:current_user_id])
         verified_user
       else
-        reject_unauthorized_connnection
+        reject_unauthorized_connection
       end
     end
 

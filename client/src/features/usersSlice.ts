@@ -20,13 +20,6 @@ const usersSlice = createSlice({
     name: 'users',
     initialState,
     reducers: {
-        logoutUser(state) {
-            state.isLoggedIn = false
-            state.id = null
-            state.username = ''
-            state.authority = ''
-            state.userStatus = null
-        }
     },
     extraReducers: builder => {
         builder.addCase(loginUser.pending, () => {
@@ -34,7 +27,7 @@ const usersSlice = createSlice({
         }).addCase(loginUser.fulfilled, (state, action) => {
             console.log("Fulfilled...")
             console.log(action.payload)
-            if (action.payload.success) {
+            if (action.payload.logged_in) {
                 const { id, username, authority } = action.payload.user
 
                 state.isLoggedIn = true
@@ -42,7 +35,7 @@ const usersSlice = createSlice({
                 state.username = username
                 state.authority = authority
             } else {
-                state.userStatus = action.payload.error
+                alert(action.payload.error)
             }
         }).addCase(loginUser.rejected, () => {
             console.log("Rejected...")
@@ -59,10 +52,18 @@ const usersSlice = createSlice({
                 state.username = username
                 state.authority = authority
             } else {
-                state.userStatus = action.payload.error
+                alert(action.payload.error)
             }
-        }).addCase(SignUpUser.rejected, () => {
+        }).addCase(SignUpUser.rejected, (state, action) => {
             console.log("Rejected...")
+            alert("Invalid username or password...")
+        }).addCase(LogoutUser.fulfilled, (state) => {
+
+            state.isLoggedIn = false
+            state.id = null
+            state.username = ''
+            state.authority = ''
+            state.userStatus = null
         })
     },
 })
@@ -84,6 +85,14 @@ export const loginUser = createAsyncThunk('users/loginUser', async (user: any) =
     return res.json()
 })
 
+export const LogoutUser = createAsyncThunk('users/logoutUser', async () => {
+
+    const res = await fetch('/logout', {
+        method: "DELETE"
+    })
+
+})
+
 export const SignUpUser = createAsyncThunk('users/signUpUser', async (user: any) => {
 
     const res = await fetch('/signup', {
@@ -92,16 +101,16 @@ export const SignUpUser = createAsyncThunk('users/signUpUser', async (user: any)
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            username: user.username,
-            password: user.password,
-            password_confirmation: user.password_confirmation
+            user: {
+                username: user.username,
+                password: user.password,
+                password_confirmation: user.password_confirmation
+            }
         })
     })
     const json = res.json()
 
     return json
 })
-
-export const { logoutUser } = usersSlice.actions
 
 export default usersSlice.reducer

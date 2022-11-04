@@ -1,20 +1,21 @@
 class UsersController < ApplicationController
     skip_before_action :logged_in?, only: [:create]
 
-    rescue_from ActiveRecord::RecordNotFound, with: :render_record_not_found
-    rescue_from ActiveRecord::RecordInvalid, with: :render_record_invalid
+    # rescue_from ActiveRecord::RecordNotFound, with: :render_record_not_found
+    # rescue_from ActiveRecord::RecordInvalid, with: :render_record_invalid
 
     def create
         
         if user_params.include? :authority
             user = User.create!(user_params)
         else
+            puts "user params..."
+            puts user_params
             user = User.create!(user_params.merge(authority: 'regular'))
         end
 
 
         if user
-            session[:current_user_id] = user.id
 
             render json: { 
                     user: user, 
@@ -39,7 +40,7 @@ class UsersController < ApplicationController
     def user_params
         params
         .require(:user)
-        .permit(:username, :authority, :password, :password_confirmation)
+        .permit(:username, :password, :password_confirmation)
     end
 
     def render_record_not_found

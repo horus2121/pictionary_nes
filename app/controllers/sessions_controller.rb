@@ -10,15 +10,16 @@ class SessionsController < ApplicationController
 
             if session[:current_user_id] == user.id
                 render json: { 
+                        logged_in: true,
+                        user: UserSerializer.new(user),
                         error: "Already logged in..."
-                        }, 
-                        status: :unprocessable_entity
+                        } 
             else
                 session[:current_user_id] = user.id
 
                 render json: { 
                     logged_in: true, 
-                    user: user,
+                    user: UserSerializer.new(user),
                     success: "Successfully logged in..."
                 }, 
                     status: :created
@@ -31,6 +32,7 @@ class SessionsController < ApplicationController
     end
 
     def destroy
+
         session.delete :current_user_id
 
         render json: { success: "Session deleted."}

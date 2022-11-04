@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../app/hooks"
 import { RootState } from "../app/store"
 import { CreateLobby, EnterLobby } from "../features/lobbiesSlice"
-import { logoutUser } from "../features/usersSlice"
+import { LogoutUser } from "../features/usersSlice"
 
 export const PreGame = () => {
     const dispatch = useAppDispatch()
@@ -50,6 +50,10 @@ export const PreGame = () => {
         setPassword('')
         setMode('')
 
+        if (document.querySelectorAll('input')) {
+            document.querySelectorAll('input').forEach((input) => input.value = '')
+        }
+
         dispatch(CreateLobby(lobby))
     }
 
@@ -59,14 +63,13 @@ export const PreGame = () => {
     }
 
     const handleQuitGame = () => {
-        dispatch(logoutUser())
-        navigate('/')
+        // TODO: Cannot destroy session correctly
+        dispatch(LogoutUser())
     }
 
     return (
         <div className='grid grid-cols-3 m-5 absolute'>
             <span className="nes-text col-start-2 row-start-1">Pictionary</span>
-            <span className="nes-text col-start-2 row-start-2">Hi Username!</span>
 
             <div className="col-start-2 row-start-3">
                 <label htmlFor="on_new_lobby">Create a new lobby?</label>
@@ -113,11 +116,14 @@ export const PreGame = () => {
                         </select>
                     </div>
 
-                    <div className="nes-field">
-                        <label htmlFor="password">Password</label>
-                        <input type="password" id="password" className="nes-input" onChange={(e) => setPassword(e.target.value)} />
-                    </div>
+                    {(mode === "private") &&
+                        <div className="nes-field">
+                            <label htmlFor="password">Password</label>
+                            <input type="password" id="password" className="nes-input" onChange={(e) => setPassword(e.target.value)} />
+                        </div>
+                    }
                 </div>
+
             }
 
             <div className="grid grid-cols-2 col-start-2 row-start-6 mt-5">

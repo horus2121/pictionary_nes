@@ -45,7 +45,7 @@ export const Channel = (props: any) => {
 
             <div className="nes-field mt-2">
                 <input type="text" id="message" className="nes-input" placeholder="Enter your message..." onChange={(e) => setMessage(e.target.value)} />
-                <button onClick={() => handleChatMessage(message)}>Send</button>
+                <button onClick={() => handleUpstream(message)}>Send</button>
             </div>
         </div>
     )

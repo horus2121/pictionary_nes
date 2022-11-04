@@ -82,19 +82,19 @@ export const Tools = (props: any) => {
 
 
     return (
-        <div className="col-start-3 col-span-3 row-start-6">
+        <div className="flex flex-wrap col-start-3 col-span-3 row-start-6">
             <button type="button" className="nes-btn is-primary" onClick={pen}>Pencil</button>
             <button type="button" className="nes-btn is-success" onClick={eraser}>Eraser</button>
             <button type="button" className="nes-btn is-warning" onClick={bin}>CleanAll</button>
 
-            <div className="nes-select is-error w-40">
+            <div className="nes-select w-40">
                 <select required id="color" defaultValue="" onChange={switchColor}>
                     <option value="" disabled hidden>Color...</option>
                     {colorOptions}
                 </select>
             </div>
 
-            <div className="nes-select is-error w-40">
+            <div className="nes-select w-40">
                 <select required id="width" defaultValue="" onChange={changeWidth}>
                     <option value="" disabled hidden>Width...</option>
                     {widthOptions}

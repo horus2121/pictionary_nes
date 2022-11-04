@@ -1,15 +1,17 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
+import { useAppDispatch, useAppSelector } from './app/hooks';
+import { RootState } from './app/store';
+
 import { Login } from './views/Login';
 import { Game } from './views/Game';
 import { SignUp } from './views/SignUp';
 import { PreGame } from './views/PreGame';
 import { Layout } from './views/Layout';
 import { AuthUsers } from './features/AuthUsers';
-import { useAppDispatch, useAppSelector } from './app/hooks';
 import { Home } from './views/Home';
-import { RootState } from './app/store';
+import { Profile } from './views/Profile';
 
 export const App = () => {
   const dispatch = useAppDispatch()
@@ -39,6 +41,7 @@ export const App = () => {
           <Route path='signup' element={<SignUp />} />
 
           <Route element={<AuthUsers />} >
+            <Route path='me' element={<Profile />} />
             <Route path='pregame' element={<PreGame />} />
             <Route path='lobbies/:id' element={<Game />} />
           </Route>

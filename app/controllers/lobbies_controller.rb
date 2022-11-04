@@ -1,6 +1,6 @@
 class LobbiesController < ApplicationController
-    rescue_from ActiveRecord::RecordNotFound, with: :render_record_not_found
-    rescue_from ActiveRecord::RecordInvalid, with: :render_record_invalid
+    # rescue_from ActiveRecord::RecordNotFound, with: :render_record_not_found
+    # rescue_from ActiveRecord::RecordInvalid, with: :render_record_invalid
 
     def index
         lobbies = Lobby.all
@@ -15,12 +15,17 @@ class LobbiesController < ApplicationController
     end
 
     def create
-        lobby = Lobby.create!(lobby_params)
+        puts "lobby params..."
+        puts lobby_params
+        lobby = Lobby.create!(lobby_params.merge(user_id: session[:current_user_id]))
+
+        # user = User.find_by(id: session[:current_user_id])
+        # user.update(lobby_id: lobby.id)
 
         if lobby
             render json: { lobby: lobby }, status: :created
         else
-            render json: { errors: lobby.errors.full_messages }, status: :unprocessable_entity
+            render json: { error: "Unprocessable lobby..." }, status: :unprocessable_entity
         end
 
     end

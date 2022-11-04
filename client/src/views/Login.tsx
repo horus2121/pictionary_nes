@@ -13,11 +13,12 @@ export const Login = () => {
     const [password, setPassword] = useState('')
 
     useEffect(() => {
-        console.log(user)
+
         if (user.isLoggedIn) {
             navigate('/pregame')
         }
-    }, [])
+
+    }, [user, navigate])
 
     const handleStartGame = () => {
 
@@ -26,7 +27,6 @@ export const Login = () => {
         setPassword("")
 
         dispatch(loginUser(user))
-        navigate('/pregame')
     }
 
     const handleSignUp = () => {

@@ -4,16 +4,7 @@ class ChatMessagesController < ApplicationController
     rescue_from ActiveRecord::RecordInvalid, with: :render_record_invalid
 
     def create
-        # puts session[:current_lobby_id]
         user = User.find_by(id: session[:current_user_id])
-        # lobby = Lobby.find_by(id: session[:current_lobby_id])
-        serialized_user = UserSerializer.new(user)
-        puts "Current user is..."
-        # puts user
-        # puts user.lobby_id
-        puts user.lobby
-        # puts serialized_user.lobby
-        # puts serializer.lobby
 
         if user
 
@@ -26,7 +17,6 @@ class ChatMessagesController < ApplicationController
             end
 
         end
-
 
         ActionCable.server.broadcast "lobby_#{user.lobby.id}_#{user.id}", message: chat_message.content
     end

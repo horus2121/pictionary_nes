@@ -2,22 +2,36 @@ import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../app/hooks"
 import { RootState } from "../app/store"
-import { quitLobby } from "../features/lobbiesSlice"
-import { logoutUser } from "../features/usersSlice"
+import { QuitLobby } from "../features/lobbiesSlice"
+import { LogoutUser } from "../features/usersSlice"
 
 export const Nav = () => {
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
     const lobbyID = useAppSelector((state: RootState) => state.lobbies.id)
 
-    // useEffect(() => {
-    //     if (!lobbyID) navigate('/')
-    // })
+    const handleHome = () => {
+        if (!lobbyID) return
+        dispatch(QuitLobby(lobbyID))
+        dispatch(LogoutUser())
+        navigate('/')
+    }
+
+    const handleProfile = () => {
+        navigate('/me')
+    }
+
+    const handleLobby = () => {
+        if (!lobbyID) return
+        dispatch(QuitLobby(lobbyID))
+        navigate('/pregame')
+    }
 
     const handleQuitGame = () => {
-        dispatch(quitLobby())
-        dispatch(logoutUser())
-        navigate('/')
+        if (!lobbyID) return
+        dispatch(QuitLobby(lobbyID))
+        dispatch(LogoutUser())
+        navigate('/login')
     }
 
     return (
@@ -25,7 +39,7 @@ export const Nav = () => {
 
             <div className="nes-badge is-icon">
                 <span className=""></span>
-                <span className="is-primary">Home</span>
+                <span className="is-primary" onClick={handleHome}>Home</span>
             </div>
 
             <div className="nes-badge is-icon">
@@ -35,12 +49,12 @@ export const Nav = () => {
 
             <div className="nes-badge is-icon">
                 <span className=""></span>
-                <span className="is-warning">Hi</span>
+                <span className="is-warning" onClick={handleProfile}>Porfile</span>
             </div>
 
             <div className="nes-badge is-icon">
                 <span className=""></span>
-                <span className="is-error">Hello</span>
+                <span className="is-error" onClick={handleLobby}>Lobby</span>
             </div>
 
             <div className="nes-badge is-icon">

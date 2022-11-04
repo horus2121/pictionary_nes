@@ -4,26 +4,31 @@ class LobbySessionsController < ApplicationController
         lobby = Lobby.find_by(id: params[:lobby_id])
 
         if lobby
-            session[:current_lobby_id] = lobby.id
 
             user = User.find_by(id: session[:current_user_id])
-            user.update(lobby_id: lobby.id)
+
+            lobby.users << user
 
             render json: {
                 lobby: lobby
             },
             status: :created
         else
-            render json: { errors: lobby.errors.full_messages }, status: :unprocessable_entity
+            render json: { error: "Cannot join the lobby..." }, status: :unprocessable_entity
         end
 
     end
 
-    def destory
-        session.delete :current_lobby_id
+    def destroy
 
+        lobby = Lobby.find_by(id: params[:lobby_id])
         user = User.find_by(id: session[:current_user_id])
-        user.update(lobby_id: nil)
+
+        lobby.users.delete(user)
+
+        if lobby.users.empty?
+            lobby.destroy
+        end
 
         render json: { success: "Lobby session deleted."}
     end
