@@ -23,9 +23,10 @@ class LobbyChannel < ApplicationCable::Channel
     lobby_id = params[:lobby_id]
 
     @@LobbyPlayers[lobby_id].each do |user|
-      # unless player == current_user.id
+      puts user
+      unless user == current_user.id
         ActionCable.server.broadcast "lobby_#{lobby_id}_#{user}", data
-      # end
+      end
     end
 
 

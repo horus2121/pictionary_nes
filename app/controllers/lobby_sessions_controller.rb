@@ -24,7 +24,9 @@ class LobbySessionsController < ApplicationController
         lobby = Lobby.find_by(id: params[:lobby_id])
         user = User.find_by(id: session[:current_user_id])
 
-        lobby.users.delete(user)
+        if lobby
+            lobby.users.delete(user)
+        end
 
         if lobby.users.empty?
             lobby.destroy

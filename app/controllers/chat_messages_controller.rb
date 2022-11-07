@@ -8,7 +8,7 @@ class ChatMessagesController < ApplicationController
 
         if user
 
-            chat_message = ChatMessage.create!(chat_message_params.merge(user_id: user.id, lobby_id: user.lobby.id))
+            chat_message = ChatMessage.create!(chat_message_params.merge(user_id: user.id))
 
             if chat_message
                 render json: { chat_message: chat_message}, status: :created
@@ -18,7 +18,7 @@ class ChatMessagesController < ApplicationController
 
         end
 
-        ActionCable.server.broadcast "lobby_#{user.lobby.id}_#{user.id}", message: chat_message.content
+        ActionCable.server.broadcast "lobby_#{chat_message_params[:lobby_id]}_#{user.id}", message: chat_message.content
     end
 
     private
