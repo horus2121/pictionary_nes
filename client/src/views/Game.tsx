@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ActionCable from "actioncable";
 
 import { Canvas } from "../components/Canvas";
 import { Channel } from "../components/Channel";
@@ -11,8 +10,6 @@ import { useAppSelector } from "../app/hooks";
 import { RootState } from "../app/store";
 import { lobbyChannel } from "../channels/lobby_channel";
 
-const cable = ActionCable.createConsumer('ws://localhost:3000/cable')
-
 export const Game = () => {
     const navigate = useNavigate()
     const currentLobby = useParams()
@@ -21,14 +18,6 @@ export const Game = () => {
     const [receivedMessage, setReceivedMessage] = useState('')
     const lobby = useAppSelector((state: RootState) => state.lobbies)
     const user = useAppSelector((state: RootState) => state.users)
-
-    useEffect(() => {
-
-        if (!lobby.id) {
-            navigate('/pregame')
-        }
-
-    }, [lobby])
 
     const channelProps = {
         lobbyParams: {
@@ -51,6 +40,8 @@ export const Game = () => {
                     setReceivedMessage(data.message)
                 } else if (data.canvasPath) {
                     setReceivedCanvasPath(data.canvasPath)
+                } else {
+                    console.log(data)
                 }
             }
         }
@@ -75,6 +66,14 @@ export const Game = () => {
 
         if (!lobby.id) {
             sub.unsubscribe()
+            navigate('/pregame')
+        }
+
+        return () => {
+            if (!lobby.id) {
+                sub.unsubscribe()
+            }
+
         }
     }, [lobby])
 
@@ -140,7 +139,7 @@ export const Game = () => {
 
     return (
         <div className='grid grid-cols-7 gap-3'>
-            {/* <PlayerList /> */}
+            <PlayerList />
             <WordGenerator />
             <Canvas handleUpstream={handleSendCanvasPath} receivedCanvasPath={receivedCanvasPath} />
             <ScoreBoard />

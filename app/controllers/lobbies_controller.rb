@@ -10,20 +10,21 @@ class LobbiesController < ApplicationController
 
     def show
         lobby = Lobby.find(params[:id])
+        serialized_lobby = LobbySerializer.new(lobby)
 
-        render json: { lobby: lobby }, status: :created
+        render json: { lobby: serialized_lobby }, status: :created
     end
 
     def create
-        puts "lobby params..."
-        puts lobby_params
-        lobby = Lobby.create!(lobby_params.merge(user_id: session[:current_user_id]))
 
-        # user = User.find_by(id: session[:current_user_id])
-        # user.update(lobby_id: lobby.id)
+        lobby = Lobby.create!(lobby_params.merge(user_id: session[:current_user_id]))
+        user = User.find_by(id: session[:current_user_id])
 
         if lobby
-            render json: { lobby: lobby }, status: :created
+            user.update!(lobby_id: lobby.id)
+            serialized_lobby = LobbySerializer.new(lobby)
+
+            render json: { lobby: serialized_lobby }, status: :created
         else
             render json: { error: "Unprocessable lobby..." }, status: :unprocessable_entity
         end

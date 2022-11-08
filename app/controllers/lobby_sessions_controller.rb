@@ -7,7 +7,11 @@ class LobbySessionsController < ApplicationController
 
             user = User.find_by(id: session[:current_user_id])
 
-            lobby.users << user
+            user.update!(lobby_id: lobby.id)
+            puts "user list..."
+            lobby.users.each do |user|
+                puts user.username
+            end
 
             render json: {
                 lobby: lobby
@@ -25,7 +29,7 @@ class LobbySessionsController < ApplicationController
         user = User.find_by(id: session[:current_user_id])
 
         if lobby
-            lobby.users.delete(user)
+            user.update!(lobby_id: nil)
         end
 
         if lobby.users.empty?
