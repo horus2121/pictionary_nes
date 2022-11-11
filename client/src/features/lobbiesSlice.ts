@@ -1,10 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { stat } from "fs";
 
 interface InitialState {
     id: number | null,
     title: string,
     description: string,
     mode: string,
+    userID: number | null
 }
 
 const initialState: InitialState = {
@@ -12,6 +14,7 @@ const initialState: InitialState = {
     title: '',
     description: '',
     mode: '',
+    userID: null
 }
 
 const lobbiesSlice = createSlice({
@@ -24,12 +27,13 @@ const lobbiesSlice = createSlice({
             console.log("Fulfilled...")
             console.log(action.payload)
             if (!action.payload.error) {
-                const { id, title, description, mode } = action.payload.lobby
+                const { id, title, description, mode, user_id } = action.payload.lobby
 
                 state.id = id
                 state.title = title
                 state.description = description
                 state.mode = mode
+                state.userID = user_id
             } else {
                 alert(action.payload.error)
             }
@@ -40,12 +44,13 @@ const lobbiesSlice = createSlice({
             console.log(action.payload)
 
             if (!action.payload.error) {
-                const { id, title, description, mode } = action.payload.lobby
+                const { id, title, description, mode, user_id } = action.payload.lobby
 
                 state.id = id
                 state.title = title
                 state.description = description
                 state.mode = mode
+                state.userID = user_id
             } else {
                 alert(action.payload.error)
             }
@@ -55,6 +60,7 @@ const lobbiesSlice = createSlice({
             state.title = ''
             state.description = ''
             state.mode = ''
+            state.userID = null
         })
     }
 })
@@ -94,7 +100,7 @@ export const CreateLobby = createAsyncThunk('lobbies/createLobby', async (lobby:
     return json
 })
 
-export const QuitLobby = createAsyncThunk('lobbies/quitLobby', async (lobby_id: number) => {
+export const QuitLobby = createAsyncThunk('lobbies/quitLobby', async (lobby_id: number | null) => {
 
     const res = await fetch('/quit_lobby', {
         method: "DELETE",

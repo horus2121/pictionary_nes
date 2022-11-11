@@ -15,14 +15,13 @@ const styles = {
 
 export const Canvas = (props: any) => {
 
-    const { handleUpstream, receivedCanvasPath } = props
+    const { gameOn, drawOn, handleUpstream, receivedCanvasPath, handleStartGame } = props
     const canvasRef = useRef(null)
     const [windowWidth, setWindowWidth] = useState(getWidth())
     const [windowHeight, setWindowHeight] = useState(getHeight())
     const [strokeColor, setStrokeColor] = useState('black')
     const [strokeWidth, setStrokeWidth] = useState(4)
-    const [gameOn, setGameOn] = useState(false)
-    const [drawOn, setDrawOn] = useState(false)
+    const [pointerInCanvasRange, setPointerInCanvasRange] = useState(false)
 
     useEffect(() => {
 
@@ -77,7 +76,7 @@ export const Canvas = (props: any) => {
         if (!canvasRef.current) return
         const canvas: any = canvasRef.current
 
-        if (drawOn) {
+        if (pointerInCanvasRange) {
             const data = canvas.exportPaths()
             data.then((path: any) => handleUpstream(path))
         }
@@ -87,14 +86,18 @@ export const Canvas = (props: any) => {
         if (!canvasRef.current) return
         const canvas: any = canvasRef.current
 
-        if (!receivedCanvasPath || Object.keys(receivedCanvasPath).length == 0) return
+        if (!receivedCanvasPath || Object.keys(receivedCanvasPath).length === 0) return
         // console.log(receivedCanvasPath)
         canvas.loadPaths(receivedCanvasPath)
     }, [receivedCanvasPath])
 
     return (
         <>
-            <div className="nes-container with-title is-centered col-start-2 col-span-5 row-start-2 row-span-4" onMouseDown={() => setDrawOn(true)} onMouseUp={() => setDrawOn(false)}>
+            <div
+                style={drawOn ? { pointerEvents: "auto" } : { pointerEvents: "none" }}
+                className="nes-container with-title is-centered col-start-2 col-span-5 row-start-2 row-span-4"
+                onMouseDown={() => setPointerInCanvasRange(true)}
+                onMouseUp={() => setPointerInCanvasRange(false)}>
                 <p className="title">Canvas</p>
                 <ReactSketchCanvas
                     ref={canvasRef}
@@ -102,9 +105,6 @@ export const Canvas = (props: any) => {
                     strokeColor={strokeColor}
                     strokeWidth={strokeWidth}
                     onChange={handleCanvasData} />
-                {!gameOn &&
-                    <button className="absolute top-1/2 left-1/2 nes-text is-error" onClick={() => setGameOn(true)}>Start</button>
-                }
             </div>
             <Tools
                 canvasRef={canvasRef}

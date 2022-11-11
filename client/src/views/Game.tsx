@@ -6,18 +6,24 @@ import { Channel } from "../components/Channel";
 import { ScoreBoard } from "../components/ScoreBoard";
 import { WordGenerator } from "../components/WordGenerator";
 import { PlayerList } from "../components/PlayerList";
-import { useAppSelector } from "../app/hooks";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { RootState } from "../app/store";
 import { lobbyChannel } from "../channels/lobby_channel";
+import { QuitLobby } from "../features/lobbiesSlice";
 
 export const Game = () => {
+    const dispatch = useAppDispatch()
     const navigate = useNavigate()
     const currentLobby = useParams()
-    const [canvasPath, setCanvasPath] = useState({})
     const [receivedCanvasPath, setReceivedCanvasPath] = useState({})
     const [receivedMessage, setReceivedMessage] = useState('')
     const lobby = useAppSelector((state: RootState) => state.lobbies)
     const user = useAppSelector((state: RootState) => state.users)
+
+    const [gameOn, setGameOn] = useState(false)
+    const [currentDrawer, setCurrentDrawer] = useState(0)
+    const [drawOn, setDrawOn] = useState(false)
+    const [isLobbyOwner, setIsLobbyOwner] = useState(false)
 
     const channelProps = {
         lobbyParams: {
@@ -40,10 +46,20 @@ export const Game = () => {
                     setReceivedMessage(data.message)
                 } else if (data.canvasPath) {
                     setReceivedCanvasPath(data.canvasPath)
-                } else {
+                } else if (data.game_status === 1) {
+                    setGameOn(true)
+                    setCurrentDrawer(data.current_drawer)
+                } else if (data.game_status === 0) {
+                    alert("Game is in process...")
+                    dispatch(QuitLobby(lobby.id))
+                } else if (data.game_status === 2) {
+                    setGameOn(false)
+                }
+                else {
                     console.log(data)
                 }
-            }
+            },
+
         }
     }
 
@@ -58,6 +74,13 @@ export const Game = () => {
 
         const sub = lobbyChannel(channelProps)
         sub.send({ canvasPath: canvasPath })
+
+    }
+
+    const handleStartGame = () => {
+
+        const sub = lobbyChannel(channelProps)
+        sub.perform("game_start")
 
     }
 
@@ -76,6 +99,27 @@ export const Game = () => {
 
         }
     }, [lobby])
+
+    useEffect(() => {
+
+        if (user.id === currentDrawer) {
+            setDrawOn(true)
+        } else {
+            setDrawOn(false)
+        }
+        console.log(currentDrawer)
+
+    }, [user, currentDrawer])
+
+    useEffect(() => {
+
+        if (user.id === lobby.userID) {
+            setIsLobbyOwner(true)
+        } else {
+            setIsLobbyOwner(false)
+        }
+
+    }, [user, lobby])
 
     // const handleConnection = (handlers: any) => {
 
@@ -140,10 +184,22 @@ export const Game = () => {
     return (
         <div className='grid grid-cols-7 gap-3'>
             <PlayerList />
-            <WordGenerator />
-            <Canvas handleUpstream={handleSendCanvasPath} receivedCanvasPath={receivedCanvasPath} />
+            <WordGenerator
+                currentDrawer={currentDrawer}
+                gameOn={gameOn} />
+            <Canvas
+                drawOn={drawOn}
+                handleUpstream={handleSendCanvasPath}
+                receivedCanvasPath={receivedCanvasPath}
+                handleStartGame={handleStartGame}
+                gameOn={gameOn} />
             <ScoreBoard />
-            <Channel handleUpstream={handleSendMessage} receivedMessage={receivedMessage} />
+            {!gameOn && isLobbyOwner &&
+                <button className="absolute top-1/3 left-1/2 nes-text is-error" onClick={handleStartGame}>Start</button>
+            }
+            <Channel
+                handleUpstream={handleSendMessage}
+                receivedMessage={receivedMessage} />
         </div>
     );
 }

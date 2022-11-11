@@ -5,6 +5,7 @@ class LobbySessionsController < ApplicationController
 
         if lobby
 
+            serialized_lobby = LobbySerializer.new(lobby)
             user = User.find_by(id: session[:current_user_id])
 
             user.update!(lobby_id: lobby.id)
@@ -14,7 +15,7 @@ class LobbySessionsController < ApplicationController
             end
 
             render json: {
-                lobby: lobby
+                lobby: serialized_lobby
             },
             status: :created
         else
@@ -30,13 +31,27 @@ class LobbySessionsController < ApplicationController
 
         if lobby
             user.update!(lobby_id: nil)
-        end
 
-        if lobby.users.empty?
-            lobby.destroy
+            if lobby.users.empty?
+                lobby.destroy
+            end
         end
 
         render json: { success: "Lobby session deleted."}
     end
+
+    # def self.game_start(players)
+
+    #     players.each do |player|
+    #         ActionCable.server.broadcast "lobby_#{lobby_id}_#{player}", {action: "game_start", msg: "?"}
+    #     end
+
+    # end
+
+    # def self.take_turn
+    # end
+
+    # def self.game_end
+    # end
 
 end

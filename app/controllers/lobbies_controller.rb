@@ -17,7 +17,7 @@ class LobbiesController < ApplicationController
 
     def create
 
-        lobby = Lobby.create!(lobby_params.merge(user_id: session[:current_user_id]))
+        lobby = Lobby.create!(lobby_params.merge(user_id: session[:current_user_id], in_game: false))
         user = User.find_by(id: session[:current_user_id])
 
         if lobby

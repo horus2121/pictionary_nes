@@ -4,7 +4,7 @@ import { RootState } from "../app/store"
 
 export const PlayerList = () => {
     const lobby = useAppSelector((state: RootState) => state.lobbies)
-    const [users, setUsers] = useState([])
+    const [users, setUsers] = useState<any>([])
 
     useEffect(() => {
 
@@ -12,7 +12,6 @@ export const PlayerList = () => {
         fetch('/lobbies/' + lobby.id)
             .then(res => res.json())
             .then(json => {
-                console.log("json", json.lobby.users)
                 setUsers(json.lobby.users)
             })
             .catch(err => console.log(err))

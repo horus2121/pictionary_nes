@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_01_012555) do
+ActiveRecord::Schema.define(version: 2022_11_11_030045) do
 
   create_table "chat_messages", force: :cascade do |t|
     t.text "content"
@@ -31,6 +31,7 @@ ActiveRecord::Schema.define(version: 2022_11_01_012555) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "user_id"
+    t.boolean "in_game"
     t.index ["user_id"], name: "index_lobbies_on_user_id", unique: true
   end
 
