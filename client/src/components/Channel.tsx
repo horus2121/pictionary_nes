@@ -1,27 +1,9 @@
 import { useState } from "react"
-import { useAppSelector } from "../app/hooks"
-import { RootState } from "../app/store"
 
 export const Channel = (props: any) => {
 
-    const { handleUpstream, receivedMessage } = props
+    const { handleUpstream, messageSender, receivedMessage, ownMessage } = props
     const [message, setMessage] = useState('')
-    const lobby = useAppSelector((state: RootState) => state.lobbies)
-
-    const handleChatMessage = async (content: any) => {
-
-        const res = await fetch('/chat_messages', {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                content: content,
-                lobby_id: lobby.id
-            })
-        })
-
-    }
 
     return (
         <div className="row-start-7 col-start-2 col-span-5 mb-12">
@@ -29,7 +11,13 @@ export const Channel = (props: any) => {
                 <div className="message-list">
                     <div className="message -left">
                         <div className="nes-balloon from-left">
-                            <p className="text-sm">{receivedMessage}</p>
+                            <p className="text-sm">{messageSender} : {receivedMessage}</p>
+                        </div>
+                    </div>
+
+                    <div className="message -right">
+                        <div className="nes-balloon from-right">
+                            <p className="text-sm">{ownMessage}</p>
                         </div>
                     </div>
                 </div>

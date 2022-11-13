@@ -1,5 +1,7 @@
 class LobbyChannel < ApplicationCable::Channel
 
+  require 'net/http'
+
   @@LobbyPlayers = {}
 
   def subscribed
@@ -56,9 +58,19 @@ class LobbyChannel < ApplicationCable::Channel
     lobby_id = params[:lobby_id]
 
     @@LobbyPlayers[lobby_id].each do |user|
-      unless user == current_user.id
+
+      if data.include? "message"
+        username = User.find_by(id: data["sender"]).username
+        modified_data = { message: data["message"], sender: username}
+        ActionCable.server.broadcast "lobby_#{lobby_id}_#{user}", modified_data
+      elsif data.include? "scored_player" 
+        username = User.find_by(id: data["scored_player"]).username
+        modified_data = { scored_player: username}
+        ActionCable.server.broadcast "lobby_#{lobby_id}_#{user}", modified_data
+      else
         ActionCable.server.broadcast "lobby_#{lobby_id}_#{user}", data
       end
+
     end
 
 
@@ -106,24 +118,30 @@ class LobbyChannel < ApplicationCable::Channel
 
     lobby_id = params[:lobby_id]
     lobby = Lobby.find_by(lobby_id)
-    puts "game_start..."
-    puts lobby_id
-    puts lobby
     lobby.update!(in_game: true)
 
     sequence = @@LobbyPlayers[lobby_id].shuffle
 
     sequence.each do |drawer|
+
+      url = "https://random-word-api.herokuapp.com/word"
+      result = JSON.parse(Net::HTTP.get(URI(url)))
+
       @@LobbyPlayers[lobby_id].each do |user|
+
+          ActionCable.server.broadcast "lobby_#{lobby_id}_#{user}", { word: result }
           ActionCable.server.broadcast "lobby_#{lobby_id}_#{user}", { game_status: 1, current_drawer: drawer}
+
       end
 
-      sleep 10
+      sleep 20
     end
 
     @@LobbyPlayers[lobby_id].each do |user|
         ActionCable.server.broadcast "lobby_#{lobby_id}_#{user}", { game_status: 2}
     end
+
+    lobby.update!(in_game: false)
     # loop do
     #   t = Time.now
     #   sleep(t + 1 - Time.now)

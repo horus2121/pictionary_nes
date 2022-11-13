@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useAppSelector } from "../app/hooks"
 import { RootState } from "../app/store"
 
-export const PlayerList = () => {
+export const PlayerList = (props: any) => {
+
+    const { currentLobbyUsers, setCurrentLobbyUsers } = props
     const lobby = useAppSelector((state: RootState) => state.lobbies)
-    const [users, setUsers] = useState<any>([])
 
     useEffect(() => {
 
@@ -12,7 +13,7 @@ export const PlayerList = () => {
         fetch('/lobbies/' + lobby.id)
             .then(res => res.json())
             .then(json => {
-                setUsers(json.lobby.users)
+                setCurrentLobbyUsers(json.lobby.users)
             })
             .catch(err => console.log(err))
 
@@ -21,7 +22,7 @@ export const PlayerList = () => {
     return (
         <div className="lists absolute left-10 top-80">
             <ul className="nes-list is-circle">
-                {users && users.map((user: any) => {
+                {currentLobbyUsers && currentLobbyUsers.map((user: any) => {
                     return <li key={user.id}>{user.username}</li>
                 })}
             </ul>

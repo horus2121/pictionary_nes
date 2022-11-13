@@ -17,6 +17,8 @@ export const Game = () => {
     const currentLobby = useParams()
     const [receivedCanvasPath, setReceivedCanvasPath] = useState({})
     const [receivedMessage, setReceivedMessage] = useState('')
+    const [messageSender, setMessageSender] = useState('')
+    const [ownMessage, setOwnMessage] = useState('')
     const lobby = useAppSelector((state: RootState) => state.lobbies)
     const user = useAppSelector((state: RootState) => state.users)
 
@@ -24,6 +26,10 @@ export const Game = () => {
     const [currentDrawer, setCurrentDrawer] = useState(0)
     const [drawOn, setDrawOn] = useState(false)
     const [isLobbyOwner, setIsLobbyOwner] = useState(false)
+
+    const [word, setWord] = useState('')
+    const [currentLobbyUsers, setCurrentLobbyUsers] = useState([])
+    const [scores, setScores] = useState<any>([])
 
     const channelProps = {
         lobbyParams: {
@@ -43,7 +49,12 @@ export const Game = () => {
             received(data: any) {
 
                 if (data.message) {
-                    setReceivedMessage(data.message)
+                    if (data.sender == user.username) {
+                        setOwnMessage(data.message)
+                    } else {
+                        setMessageSender(data.sender)
+                        setReceivedMessage(data.message)
+                    }
                 } else if (data.canvasPath) {
                     setReceivedCanvasPath(data.canvasPath)
                 } else if (data.game_status === 1) {
@@ -54,8 +65,27 @@ export const Game = () => {
                     dispatch(QuitLobby(lobby.id))
                 } else if (data.game_status === 2) {
                     setGameOn(false)
-                }
-                else {
+                    setScores([])
+                    setWord('')
+                } else if (data.word) {
+                    setWord(data.word)
+                } else if (data.scored_player) {
+
+                    const updatedScores = () => {
+                        // if (scores.some((user: any) => user.username === data.scored_player ? true : false)) {
+                        //     return scores.map((user: any) => user.username === data.scored_player ? { ...user, score: user.score + 10 } : user)
+                        // } else {
+                        //     return [...scores, { username: data.scored_player, score: 10 }]
+                        // }
+                        if (scores.length === 0) {
+                            return [...scores, { username: data.scored_player, score: 10 }]
+                        } else {
+                            return scores.map((user: any) => user.username === data.scored_player ? { ...user, score: user.score + 10 } : user)
+                        }
+                    }
+
+                    setScores(updatedScores)
+                } else {
                     console.log(data)
                 }
             },
@@ -66,7 +96,12 @@ export const Game = () => {
     const handleSendMessage = (message: string) => {
 
         const sub = lobbyChannel(channelProps)
-        sub.send({ message: message })
+
+        if (message == word) {
+            sub.send({ scored_player: user.id })
+        } else {
+            sub.send({ message: message, sender: user.id })
+        }
 
     }
 
@@ -107,7 +142,6 @@ export const Game = () => {
         } else {
             setDrawOn(false)
         }
-        console.log(currentDrawer)
 
     }, [user, currentDrawer])
 
@@ -121,70 +155,14 @@ export const Game = () => {
 
     }, [user, lobby])
 
-    // const handleConnection = (handlers: any) => {
-
-    //     const params = {
-    //         channel: "LobbyChannel",
-    //         lobby_id: currentLobby,
-    //         user_id: 1
-    //     }
-
-    //     const sub = cable.subscriptions.create(params, handlers)
-
-    //     return sub
-
-    // }
-
-    // const handleUpstream = (upstream: any) => {
-
-    //     console.log("send message...")
-    //     const messageSendingHandlers = {
-    //         connected() {
-    //             sub.send({ message: upstream })
-    //         },
-
-    //         disconnected() {
-    //         },
-
-    //         received() {
-    //         }
-    //     }
-
-    //     const sub = handleConnection(messageSendingHandlers)
-
-    // }
-
-    // useEffect(() => {
-
-    //     const handlers = {
-    //         connected() {
-    //             console.log("Connected to Lobby", currentLobby)
-    //         },
-
-    //         disconnected() {
-    //             console.log("Disconnected from Lobby", currentLobby)
-    //         },
-
-    //         received(data: any) {
-    //             console.log(data)
-    //             setMessage(data.message)
-    //         }
-    //     }
-
-    //     const sub = handleConnection(handlers)
-
-    //     return () => {
-    //         console.log("Unsubbing from Lobby", currentLobby)
-    //         sub.unsubscribe()
-    //     }
-
-    // }, [currentLobby, message])
-
-
     return (
         <div className='grid grid-cols-7 gap-3'>
-            <PlayerList />
+            <PlayerList
+                currentLobbyUsers={currentLobbyUsers}
+                setCurrentLobbyUsers={setCurrentLobbyUsers} />
             <WordGenerator
+                word={word}
+                setWord={setWord}
                 currentDrawer={currentDrawer}
                 gameOn={gameOn} />
             <Canvas
@@ -193,12 +171,16 @@ export const Game = () => {
                 receivedCanvasPath={receivedCanvasPath}
                 handleStartGame={handleStartGame}
                 gameOn={gameOn} />
-            <ScoreBoard />
+            <ScoreBoard
+                scores={scores}
+                currentLobbyUsers={currentLobbyUsers} />
             {!gameOn && isLobbyOwner &&
                 <button className="absolute top-1/3 left-1/2 nes-text is-error" onClick={handleStartGame}>Start</button>
             }
             <Channel
                 handleUpstream={handleSendMessage}
+                ownMessage={ownMessage}
+                messageSender={messageSender}
                 receivedMessage={receivedMessage} />
         </div>
     );
