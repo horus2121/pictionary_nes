@@ -5,9 +5,6 @@ import { ReactSketchCanvas } from "react-sketch-canvas";
 const penCursor = "url('https://img.icons8.com/ios-glyphs/30/undefined/quill-pen.png') 0 30, auto"
 const eraserCursor = "url('https://img.icons8.com/metro/26/undefined/eraser.png') 0 26, auto"
 
-const getWidth = () => window.innerWidth
-const getHeight = () => window.innerHeight
-
 const styles = {
     border: '0.0625rem solid #9c9c9c',
     borderRadius: '0.25rem',
@@ -15,33 +12,11 @@ const styles = {
 
 export const Canvas = (props: any) => {
 
-    const { gameOn, drawOn, handleUpstream, receivedCanvasPath, handleStartGame } = props
+    const { gameOn, drawOn, handleUpstream, receivedCanvasPath, setReceivedCanvasPath, handleStartGame } = props
     const canvasRef = useRef(null)
-    const [windowWidth, setWindowWidth] = useState(getWidth())
-    const [windowHeight, setWindowHeight] = useState(getHeight())
     const [strokeColor, setStrokeColor] = useState('black')
     const [strokeWidth, setStrokeWidth] = useState(4)
     const [pointerInCanvasRange, setPointerInCanvasRange] = useState(false)
-
-    useEffect(() => {
-
-    }, [windowWidth, windowHeight]
-    )
-
-    useEffect(() => {
-        const resizeListener = () => {
-            setWindowWidth(getWidth())
-            setWindowHeight(getHeight())
-        };
-
-        window.addEventListener('resize', resizeListener);
-
-
-        return () => {
-            window.removeEventListener('resize', resizeListener);
-        }
-    }, [windowWidth, windowHeight])
-
 
     const pen = () => {
         if (!canvasRef.current) return
@@ -87,14 +62,13 @@ export const Canvas = (props: any) => {
         const canvas: any = canvasRef.current
 
         if (!receivedCanvasPath || Object.keys(receivedCanvasPath).length === 0) return
-        // console.log(receivedCanvasPath)
         canvas.loadPaths(receivedCanvasPath)
     }, [receivedCanvasPath])
 
     return (
         <>
             <div
-                style={drawOn ? { pointerEvents: "auto" } : { pointerEvents: "none" }}
+                style={gameOn && drawOn ? { pointerEvents: "auto", height: "500px" } : { pointerEvents: "none", height: "500px" }}
                 className="nes-container with-title is-centered col-start-2 col-span-5 row-start-2 row-span-4"
                 onMouseDown={() => setPointerInCanvasRange(true)}
                 onMouseUp={() => setPointerInCanvasRange(false)}>
@@ -107,7 +81,6 @@ export const Canvas = (props: any) => {
                     onChange={handleCanvasData} />
             </div>
             <Tools
-                canvasRef={canvasRef}
                 penCursor={penCursor}
                 eraserCursor={eraserCursor}
                 pen={pen}

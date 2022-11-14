@@ -9,10 +9,6 @@ class LobbySessionsController < ApplicationController
             user = User.find_by(id: session[:current_user_id])
 
             user.update!(lobby_id: lobby.id)
-            puts "user list..."
-            lobby.users.each do |user|
-                puts user.username
-            end
 
             render json: {
                 lobby: serialized_lobby
@@ -34,6 +30,11 @@ class LobbySessionsController < ApplicationController
 
             if lobby.users.empty?
                 lobby.destroy
+            else
+                new_owner = lobby.users[0]
+                puts "new owner..."
+                puts new_owner.id
+                lobby.update!(user_id: new_owner.id)
             end
         end
 

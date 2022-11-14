@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Canvas } from "../components/Canvas";
@@ -16,7 +16,7 @@ export const Game = () => {
     const navigate = useNavigate()
     const currentLobby = useParams()
     const [receivedCanvasPath, setReceivedCanvasPath] = useState({})
-    const [receivedMessage, setReceivedMessage] = useState('')
+    const [receivedMessage, setReceivedMessage] = useState<any>([])
     const [messageSender, setMessageSender] = useState('')
     const [ownMessage, setOwnMessage] = useState('')
     const lobby = useAppSelector((state: RootState) => state.lobbies)
@@ -49,14 +49,22 @@ export const Game = () => {
             received(data: any) {
 
                 if (data.message) {
-                    if (data.sender == user.username) {
-                        setOwnMessage(data.message)
+                    // if (data.sender == user.username) {
+                    //     setOwnMessage(data.message)
+                    // } else {
+                    //     setMessageSender(data.sender)
+                    //     setReceivedMessage(data.message)
+                    // }
+                    console.log(data)
+                    console.log(receivedMessage)
+                    console.log([...receivedMessage, data])
+                    if (receivedMessage.length < 20) {
+                        setReceivedMessage([...receivedMessage, data])
                     } else {
-                        setMessageSender(data.sender)
-                        setReceivedMessage(data.message)
+                        setReceivedMessage([...receivedMessage.slice(1, 21), data])
                     }
-                } else if (data.canvasPath) {
-                    setReceivedCanvasPath(data.canvasPath)
+                } else if (data.canvas_path) {
+                    setReceivedCanvasPath(data.canvas_path)
                 } else if (data.game_status === 1) {
                     setGameOn(true)
                     setCurrentDrawer(data.current_drawer)
@@ -97,7 +105,7 @@ export const Game = () => {
 
         const sub = lobbyChannel(channelProps)
 
-        if (message == word) {
+        if (gameOn && message == word) {
             sub.send({ scored_player: user.id })
         } else {
             sub.send({ message: message, sender: user.id })
@@ -108,7 +116,7 @@ export const Game = () => {
     const handleSendCanvasPath = (canvasPath: any) => {
 
         const sub = lobbyChannel(channelProps)
-        sub.send({ canvasPath: canvasPath })
+        sub.send({ canvas_path: canvasPath })
 
     }
 
@@ -147,13 +155,20 @@ export const Game = () => {
 
     useEffect(() => {
 
-        if (user.id === lobby.userID) {
-            setIsLobbyOwner(true)
-        } else {
-            setIsLobbyOwner(false)
-        }
+        if (!lobby.id) return
+        fetch('/lobbies/' + lobby.id)
+            .then(res => res.json())
+            .then(json => {
+                if (user.id === json.lobby.user_id) {
+                    setIsLobbyOwner(true)
+                } else {
+                    setIsLobbyOwner(false)
+                }
+            })
+            .catch(err => console.log(err))
 
-    }, [user, lobby])
+
+    }, [user, lobby, currentLobbyUsers])
 
     return (
         <div className='grid grid-cols-7 gap-3'>
@@ -164,11 +179,13 @@ export const Game = () => {
                 word={word}
                 setWord={setWord}
                 currentDrawer={currentDrawer}
+                drawOn={drawOn}
                 gameOn={gameOn} />
             <Canvas
                 drawOn={drawOn}
                 handleUpstream={handleSendCanvasPath}
                 receivedCanvasPath={receivedCanvasPath}
+                setReceivedCanvasPath={setReceivedCanvasPath}
                 handleStartGame={handleStartGame}
                 gameOn={gameOn} />
             <ScoreBoard

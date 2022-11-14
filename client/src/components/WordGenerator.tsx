@@ -2,7 +2,7 @@ import { useEffect } from "react"
 
 export const WordGenerator = (props: any) => {
 
-    const { gameOn, currentDrawer, word, setWord } = props
+    const { gameOn, drawOn, currentDrawer, word, setWord } = props
 
     // useEffect(() => {
 
@@ -17,22 +17,24 @@ export const WordGenerator = (props: any) => {
 
     return (
         <>
-            {gameOn ?
-                <div className="col-start-3 col-span-3 row-start-1 mt-5">
-                    <span className="nes-texty flex flex-row flex-nowrap">
-                        Please draw: {word}
-                    </span>
-
-                    <span className="nes-texty flex flex-row flex-nowrap">
-                        Player {currentDrawer} is drawing
-                    </span>
-                </div>
-                :
+            {(!gameOn) ?
                 <div className="col-start-3 col-span-3 row-start-1 mt-5">
                     <span className="nes-texty flex flex-row flex-nowrap">
                         Waiting for players...
                     </span>
                 </div>
+                : (drawOn) ?
+                    <div className="col-start-3 col-span-3 row-start-1 mt-5">
+                        <span className="nes-texty flex flex-row flex-nowrap">
+                            Please draw: {word}
+                        </span>
+                    </div>
+                    :
+                    <div className="col-start-3 col-span-3 row-start-1 mt-5">
+                        <span className="nes-texty flex flex-row flex-nowrap">
+                            Player {currentDrawer} is drawing
+                        </span>
+                    </div>
             }
         </>
     )

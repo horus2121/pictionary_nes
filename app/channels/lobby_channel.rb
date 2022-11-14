@@ -8,15 +8,6 @@ class LobbyChannel < ApplicationCable::Channel
 
     lobby_id = params[:lobby_id]
     lobby = Lobby.find_by(lobby_id)
-    puts "connected..."
-    puts "connected..."
-    puts "connected..."
-    puts "connected..."
-    puts "connected..."
-    puts "connected..."
-    puts "connected..."
-    puts lobby
-    puts lobby.in_game
 
     stream_from "lobby_#{lobby_id}_#{current_user.id}"
 
@@ -36,21 +27,6 @@ class LobbyChannel < ApplicationCable::Channel
 
     puts @@LobbyPlayers
 
-    # player_usernames = []
-
-    # @@LobbyPlayers[lobby_id].each do |user|
-
-    #   user = User.find_by(id: user).username
-    #   player_usernames << user
-
-    # end
-
-    # @@LobbyPlayers[lobby_id].each do |user|
-
-    #   ActionCable.server.broadcast "lobby_#{lobby_id}_#{user}", player_usernames
-
-    # end
-
   end
 
   def receive(data)
@@ -67,6 +43,10 @@ class LobbyChannel < ApplicationCable::Channel
         username = User.find_by(id: data["scored_player"]).username
         modified_data = { scored_player: username}
         ActionCable.server.broadcast "lobby_#{lobby_id}_#{user}", modified_data
+      elsif data.include? "canvas_path" 
+        unless user == current_user.id
+          ActionCable.server.broadcast "lobby_#{lobby_id}_#{user}", data
+        end
       else
         ActionCable.server.broadcast "lobby_#{lobby_id}_#{user}", data
       end
@@ -87,30 +67,7 @@ class LobbyChannel < ApplicationCable::Channel
       @@LobbyPlayers.delete(lobby_id)
     end
 
-    # user = User.find_by(id: current_user.id)
-    # user.update!(lobby_id: nil)
-
     puts @@LobbyPlayers
-
-    # unless @@LobbyPlayers[lobby_id] and @@LobbyPlayers[lobby_id].empty?
-
-    #   player_usernames = []
-
-    #   @@LobbyPlayers[lobby_id].each do |user|
-
-    #     user = User.find_by(id: user).username
-    #     player_usernames << user
-
-    #   end
-
-    #   @@LobbyPlayers[lobby_id].each do |user|
-
-    #     ActionCable.server.broadcast "lobby_#{lobby_id}_#{user}", player_usernames
-
-    #   end
-
-    # end
-
 
   end
 
@@ -121,6 +78,16 @@ class LobbyChannel < ApplicationCable::Channel
     lobby.update!(in_game: true)
 
     sequence = @@LobbyPlayers[lobby_id].shuffle
+
+    # TODO: 
+    # Update sequence if someone quits
+    # Replace class variable with lobby.users
+
+    # Clear canvas when each round ends and when drawer click bin button
+    
+    # Chat messages display issue
+
+    # Deploy
 
     sequence.each do |drawer|
 
@@ -142,10 +109,6 @@ class LobbyChannel < ApplicationCable::Channel
     end
 
     lobby.update!(in_game: false)
-    # loop do
-    #   t = Time.now
-    #   sleep(t + 1 - Time.now)
-    # end
 
   end
 
