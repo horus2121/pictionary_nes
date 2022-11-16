@@ -88,7 +88,7 @@ export const PreGame = () => {
                     <span className="nes-text col-start-2 row-start-2">Lobby List:</span>
                     <ul className="nes-list is-circle">
                         {
-                            lobbyList.map((lobby: any) =>
+                            lobbyList && lobbyList.map((lobby: any) =>
                                 <li key={lobby.id} value={lobby.id} onClick={handleLobbySelection}>Lobby {lobby.id}</li>)
                         }
                     </ul>
