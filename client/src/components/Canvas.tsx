@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Tools } from "./Tools";
 import { ReactSketchCanvas } from "react-sketch-canvas";
 
@@ -12,8 +12,7 @@ const styles = {
 
 export const Canvas = (props: any) => {
 
-    const { gameOn, drawOn, handleUpstream, receivedCanvasPath, setReceivedCanvasPath, handleStartGame } = props
-    const canvasRef = useRef(null)
+    const { canvasRef, gameOn, drawOn, handleUpstream, receivedCanvasPath, bin } = props
     const [strokeColor, setStrokeColor] = useState('black')
     const [strokeWidth, setStrokeWidth] = useState(4)
     const [pointerInCanvasRange, setPointerInCanvasRange] = useState(false)
@@ -30,13 +29,6 @@ export const Canvas = (props: any) => {
         const canvas: any = canvasRef.current
 
         canvas.eraseMode(true)
-    }
-
-    const bin = () => {
-        if (!canvasRef.current) return
-        const canvas: any = canvasRef.current
-
-        canvas.resetCanvas()
     }
 
     const switchColor = (e: any) => {
@@ -81,6 +73,8 @@ export const Canvas = (props: any) => {
                     onChange={handleCanvasData} />
             </div>
             <Tools
+                gameOn={gameOn}
+                drawOn={drawOn}
                 penCursor={penCursor}
                 eraserCursor={eraserCursor}
                 pen={pen}

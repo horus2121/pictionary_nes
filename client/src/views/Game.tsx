@@ -14,21 +14,20 @@ import { QuitLobby } from "../features/lobbiesSlice";
 export const Game = () => {
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
+    const canvasRef = useRef(null)
     const currentLobby = useParams()
-    const [receivedCanvasPath, setReceivedCanvasPath] = useState({})
-    const [receivedMessage, setReceivedMessage] = useState<any>([])
-    const [messageSender, setMessageSender] = useState('')
-    const [ownMessage, setOwnMessage] = useState('')
     const lobby = useAppSelector((state: RootState) => state.lobbies)
     const user = useAppSelector((state: RootState) => state.users)
+    const [receivedCanvasPath, setReceivedCanvasPath] = useState({})
+    const [receivedMessage, setReceivedMessage] = useState<any>([])
 
     const [gameOn, setGameOn] = useState(false)
-    const [currentDrawer, setCurrentDrawer] = useState(0)
+    const [currentDrawer, setCurrentDrawer] = useState('')
     const [drawOn, setDrawOn] = useState(false)
     const [isLobbyOwner, setIsLobbyOwner] = useState(false)
 
     const [word, setWord] = useState('')
-    const [currentLobbyUsers, setCurrentLobbyUsers] = useState([])
+    const [currentLobbyUsers, setCurrentLobbyUsers] = useState<any>([])
     const [scores, setScores] = useState<any>([])
 
     const channelProps = {
@@ -47,16 +46,21 @@ export const Game = () => {
             },
 
             received(data: any) {
+                // TODO:
+                // Chat messages display issue
+                // Scores display issue
 
-                if (data.message) {
-                    // if (data.sender == user.username) {
-                    //     setOwnMessage(data.message)
-                    // } else {
-                    //     setMessageSender(data.sender)
-                    //     setReceivedMessage(data.message)
-                    // }
+                // Drop chat message table
+                // Clean all the associations related to chat messages
+
+                // Deploy:
+                // Migrate from sqlite to postgres, seperate impletation for dev and production?
+                // Redis config for deployment
+                // Scripts set up
+                // cors gem?
+
+                if (data.message || data.message === '') {
                     console.log(data)
-                    console.log(receivedMessage)
                     console.log([...receivedMessage, data])
                     if (receivedMessage.length < 20) {
                         setReceivedMessage([...receivedMessage, data])
@@ -71,20 +75,45 @@ export const Game = () => {
                 } else if (data.game_status === 0) {
                     alert("Game is in process...")
                     dispatch(QuitLobby(lobby.id))
+                } else if (data.game_status === 4) {
+                    alert("The lobby has reached its capacity...")
+                    dispatch(QuitLobby(lobby.id))
                 } else if (data.game_status === 2) {
                     setGameOn(false)
                     setScores([])
                     setWord('')
+                } else if (data.game_status === 3) {
+                    const showResult = async () => {
+                        let result = "Final Result: \n"
+
+                        const calculteResult = async () => {
+
+                            currentLobbyUsers && currentLobbyUsers.forEach((user: any) => {
+                                let score
+
+                                if (scores.some((user_score: any) => user_score.username === user.username ? true : false)) {
+                                    score = scores.find((user_score: any) => user_score.username === user.username).score
+                                } else {
+                                    score = 0
+                                }
+
+                                result = result + `${user.username}: ${score} \n`
+
+                            })
+
+                            return result
+                        }
+
+                        let finalResult = await calculteResult()
+                        alert(finalResult)
+                    }
+
+                    showResult()
                 } else if (data.word) {
                     setWord(data.word)
                 } else if (data.scored_player) {
 
                     const updatedScores = () => {
-                        // if (scores.some((user: any) => user.username === data.scored_player ? true : false)) {
-                        //     return scores.map((user: any) => user.username === data.scored_player ? { ...user, score: user.score + 10 } : user)
-                        // } else {
-                        //     return [...scores, { username: data.scored_player, score: 10 }]
-                        // }
                         if (scores.length === 0) {
                             return [...scores, { username: data.scored_player, score: 10 }]
                         } else {
@@ -93,6 +122,13 @@ export const Game = () => {
                     }
 
                     setScores(updatedScores)
+                } else if (data.command) {
+                    if (data.command === 1) {
+                        if (!canvasRef.current) return
+                        const canvas: any = canvasRef.current
+
+                        canvas.resetCanvas()
+                    }
                 } else {
                     console.log(data)
                 }
@@ -105,10 +141,10 @@ export const Game = () => {
 
         const sub = lobbyChannel(channelProps)
 
-        if (gameOn && message == word) {
-            sub.send({ scored_player: user.id })
+        if (gameOn && message === word) {
+            sub.send({ scored_player: user.username })
         } else {
-            sub.send({ message: message, sender: user.id })
+            sub.send({ message: message, sender: user.username })
         }
 
     }
@@ -123,7 +159,7 @@ export const Game = () => {
     const handleStartGame = () => {
 
         const sub = lobbyChannel(channelProps)
-        sub.perform("game_start")
+        sub.perform("game_loop")
 
     }
 
@@ -139,13 +175,12 @@ export const Game = () => {
             if (!lobby.id) {
                 sub.unsubscribe()
             }
-
         }
     }, [lobby])
 
     useEffect(() => {
 
-        if (user.id === currentDrawer) {
+        if (user.username === currentDrawer) {
             setDrawOn(true)
         } else {
             setDrawOn(false)
@@ -170,6 +205,16 @@ export const Game = () => {
 
     }, [user, lobby, currentLobbyUsers])
 
+    const bin = () => {
+        if (!canvasRef.current) return
+        const canvas: any = canvasRef.current
+
+        canvas.resetCanvas()
+
+        const sub = lobbyChannel(channelProps)
+        sub.send({ command: 1 })
+    }
+
     return (
         <div className='grid grid-cols-7 gap-3'>
             <PlayerList
@@ -182,11 +227,13 @@ export const Game = () => {
                 drawOn={drawOn}
                 gameOn={gameOn} />
             <Canvas
+                canvasRef={canvasRef}
                 drawOn={drawOn}
                 handleUpstream={handleSendCanvasPath}
                 receivedCanvasPath={receivedCanvasPath}
                 setReceivedCanvasPath={setReceivedCanvasPath}
                 handleStartGame={handleStartGame}
+                bin={bin}
                 gameOn={gameOn} />
             <ScoreBoard
                 scores={scores}
@@ -196,8 +243,6 @@ export const Game = () => {
             }
             <Channel
                 handleUpstream={handleSendMessage}
-                ownMessage={ownMessage}
-                messageSender={messageSender}
                 receivedMessage={receivedMessage} />
         </div>
     );

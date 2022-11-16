@@ -63,7 +63,6 @@ export const PreGame = () => {
     }
 
     const handleQuitGame = () => {
-        // TODO: Cannot destroy session correctly
         dispatch(LogoutUser())
     }
 

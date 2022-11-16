@@ -9,8 +9,6 @@ class UsersController < ApplicationController
         if user_params.include? :authority
             user = User.create!(user_params)
         else
-            puts "user params..."
-            puts user_params
             user = User.create!(user_params.merge(authority: 'regular'))
         end
 

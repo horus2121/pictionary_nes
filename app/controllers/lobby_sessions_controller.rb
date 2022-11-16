@@ -32,27 +32,11 @@ class LobbySessionsController < ApplicationController
                 lobby.destroy
             else
                 new_owner = lobby.users[0]
-                puts "new owner..."
-                puts new_owner.id
                 lobby.update!(user_id: new_owner.id)
             end
         end
 
         render json: { success: "Lobby session deleted."}
     end
-
-    # def self.game_start(players)
-
-    #     players.each do |player|
-    #         ActionCable.server.broadcast "lobby_#{lobby_id}_#{player}", {action: "game_start", msg: "?"}
-    #     end
-
-    # end
-
-    # def self.take_turn
-    # end
-
-    # def self.game_end
-    # end
 
 end

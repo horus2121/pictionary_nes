@@ -78,11 +78,13 @@ const widthOptions = widths.map(width => {
 
 export const Tools = (props: any) => {
 
-    const { pen, eraser, bin, switchColor, changeWidth } = props
+    const { pen, eraser, bin, switchColor, changeWidth, gameOn, drawOn } = props
 
 
     return (
-        <div className="flex flex-wrap col-start-3 col-span-3 row-start-6">
+        <div
+            style={gameOn && drawOn ? { pointerEvents: "auto" } : { pointerEvents: "none" }}
+            className="flex flex-wrap col-start-3 col-span-3 row-start-6">
             <button type="button" className="nes-btn is-primary" onClick={pen}>Pencil</button>
             <button type="button" className="nes-btn is-success" onClick={eraser}>Eraser</button>
             <button type="button" className="nes-btn is-warning" onClick={bin}>CleanAll</button>
