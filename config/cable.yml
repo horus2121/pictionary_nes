@@ -6,5 +6,5 @@ test:
 
 production:
   adapter: redis
-  url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %>
+  url: redis://:p2a140ae9167cb328c5f57433d384ef55598f0c01d8f7203743df3672d0bbcf0d@ec2-3-213-154-231.compute-1.amazonaws.com:17809
   channel_prefix: pictionary_react_rails_production

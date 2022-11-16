@@ -1,3 +1,3 @@
 import actioncable from 'actioncable'
 
-export default actioncable.createConsumer('ws://localhost:3000/cable')
+export default actioncable.createConsumer('ws://dry-fjord-28793.herokuapp.com/cable')
