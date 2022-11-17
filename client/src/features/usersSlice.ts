@@ -25,8 +25,6 @@ const usersSlice = createSlice({
         builder.addCase(loginUser.pending, () => {
             console.log("Loading...")
         }).addCase(loginUser.fulfilled, (state, action) => {
-            console.log("Fulfilled...")
-            console.log(action.payload)
             if (action.payload.logged_in) {
                 const { id, username, authority } = action.payload.user
 
@@ -35,15 +33,13 @@ const usersSlice = createSlice({
                 state.username = username
                 state.authority = authority
             } else {
-                alert(action.payload.error)
+                console.log(action.payload.error)
             }
         }).addCase(loginUser.rejected, () => {
             console.log("Rejected...")
         }).addCase(SignUpUser.pending, () => {
             console.log("Loading...")
         }).addCase(SignUpUser.fulfilled, (state, action) => {
-            console.log("Fullfilled...")
-            console.log(action.payload)
             if (action.payload.success) {
                 const { id, username, authority } = action.payload.user
 
@@ -52,11 +48,10 @@ const usersSlice = createSlice({
                 state.username = username
                 state.authority = authority
             } else {
-                alert(action.payload.error)
+                console.log(action.payload.error)
             }
         }).addCase(SignUpUser.rejected, (state, action) => {
-            console.log("Rejected...")
-            alert("Invalid username or password...")
+            console.log("Invalid username or password...")
         }).addCase(LogoutUser.fulfilled, (state) => {
 
             state.isLoggedIn = false

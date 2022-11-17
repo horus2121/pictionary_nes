@@ -24,8 +24,6 @@ const lobbiesSlice = createSlice({
     },
     extraReducers: builder => {
         builder.addCase(CreateLobby.fulfilled, (state, action) => {
-            console.log("Fulfilled...")
-            console.log(action.payload)
             if (!action.payload.error) {
                 const { id, title, description, mode, user_id } = action.payload.lobby
 
@@ -35,13 +33,11 @@ const lobbiesSlice = createSlice({
                 state.mode = mode
                 state.userID = user_id
             } else {
-                alert(action.payload.error)
+                console.log(action.payload.error)
             }
         }).addCase(CreateLobby.rejected, () => {
             alert("Invalid Lobby set up...")
         }).addCase(EnterLobby.fulfilled, (state, action) => {
-            console.log("Fulfilled...")
-            console.log(action.payload)
 
             if (!action.payload.error) {
                 const { id, title, description, mode, user_id } = action.payload.lobby
@@ -52,7 +48,7 @@ const lobbiesSlice = createSlice({
                 state.mode = mode
                 state.userID = user_id
             } else {
-                alert(action.payload.error)
+                console.log(action.payload.error)
             }
         }).addCase(QuitLobby.fulfilled, (state) => {
 

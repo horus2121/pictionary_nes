@@ -8,15 +8,15 @@ import { WordGenerator } from "../components/WordGenerator";
 import { PlayerList } from "../components/PlayerList";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { RootState } from "../app/store";
-// import { lobbyChannel } from "../channels/lobby_channel";
+import { lobbyChannel } from "../channels/lobby_channel";
 import { QuitLobby } from "../features/lobbiesSlice";
-import actioncable from "actioncable";
+// import actioncable from "actioncable";
 
 export const Game = () => {
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
     const canvasRef = useRef(null)
-    const cable = useRef<any>(null)
+    // const cable = useRef<any>(null)
     const currentLobby = useParams()
     const lobby = useAppSelector((state: RootState) => state.lobbies)
     const user = useAppSelector((state: RootState) => state.users)
@@ -31,7 +31,6 @@ export const Game = () => {
     const [word, setWord] = useState('')
     const [currentLobbyUsers, setCurrentLobbyUsers] = useState<any>([])
     const [scores, setScores] = useState<any>([])
-    const [result, setResult] = useState('')
 
     const channelProps = {
         lobbyParams: {
@@ -156,20 +155,20 @@ export const Game = () => {
 
     }
 
-    const lobbyChannel = (channelProps: any) => {
-        if (!cable.current) {
-            // cable.current = actioncable.createConsumer('wss://dry-fjord-28793.herokuapp.com/cable')
-            cable.current = actioncable.createConsumer('ws://127.0.0.1:3000/cable')
-        }
+    // const lobbyChannel = (channelProps: any) => {
+    //     if (!cable.current) {
+    //         // cable.current = actioncable.createConsumer('wss://dry-fjord-28793.herokuapp.com/cable')
+    //         cable.current = actioncable.createConsumer('ws://127.0.0.1:3000/cable')
+    //     }
 
-        const createLobbyChannel = (channelProps: any) => {
-            return cable.current.subscriptions.create(channelProps.lobbyParams, channelProps.handlers)
-        }
+    //     const createLobbyChannel = (channelProps: any) => {
+    //         return cable.current.subscriptions.create(channelProps.lobbyParams, channelProps.handlers)
+    //     }
 
-        const lobbyChannel = createLobbyChannel(channelProps)
+    //     const lobbyChannel = createLobbyChannel(channelProps)
 
-        return lobbyChannel
-    }
+    //     return lobbyChannel
+    // }
 
     useEffect(() => {
 
