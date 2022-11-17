@@ -1,4 +1,3 @@
-import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../app/hooks"
 import { RootState } from "../app/store"
@@ -11,10 +10,11 @@ export const Nav = () => {
     const lobbyID = useAppSelector((state: RootState) => state.lobbies.id)
 
     const handleHome = () => {
-        if (!lobbyID) return
-        dispatch(QuitLobby(lobbyID))
-        dispatch(LogoutUser())
         navigate('/')
+        if (lobbyID) {
+            dispatch(QuitLobby(lobbyID))
+        }
+        dispatch(LogoutUser())
     }
 
     const handleProfile = () => {
@@ -22,16 +22,18 @@ export const Nav = () => {
     }
 
     const handleLobby = () => {
-        if (!lobbyID) return
-        dispatch(QuitLobby(lobbyID))
+        if (lobbyID) {
+            dispatch(QuitLobby(lobbyID))
+        }
         navigate('/pregame')
     }
 
     const handleQuitGame = () => {
-        if (!lobbyID) return
-        dispatch(QuitLobby(lobbyID))
+        navigate('/')
+        if (lobbyID) {
+            dispatch(QuitLobby(lobbyID))
+        }
         dispatch(LogoutUser())
-        navigate('/login')
     }
 
     return (

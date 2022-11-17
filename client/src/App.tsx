@@ -10,6 +10,7 @@ import { SignUp } from './views/SignUp';
 import { PreGame } from './views/PreGame';
 import { Layout } from './views/Layout';
 import { AuthUsers } from './features/AuthUsers';
+import { LobbyCheck } from './features/LobbyCheck';
 import { Home } from './views/Home';
 import { Profile } from './views/Profile';
 
@@ -43,7 +44,11 @@ export const App = () => {
           <Route element={<AuthUsers />} >
             <Route path='me' element={<Profile />} />
             <Route path='pregame' element={<PreGame />} />
-            <Route path='lobbies/:id' element={<Game />} />
+
+            <Route element={<LobbyCheck />} >
+              <Route path='lobbies/:id' element={<Game />} />
+            </Route>
+
           </Route>
 
         </Route>

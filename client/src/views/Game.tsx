@@ -31,6 +31,7 @@ export const Game = () => {
     const [word, setWord] = useState('')
     const [currentLobbyUsers, setCurrentLobbyUsers] = useState<any>([])
     const [scores, setScores] = useState<any>([])
+    const [result, setResult] = useState('')
 
     const channelProps = {
         lobbyParams: {
@@ -70,10 +71,9 @@ export const Game = () => {
                     setGameOn(false)
                     setScores([])
                 } else if (data.game_status === 2) {
-                    console.log("stage 2...")
                     setWord('')
                     const showResult = async () => {
-                        let result = "Final Result: \n"
+                        let resultBuf = "Final Result: \n"
 
                         const calculteResult = async () => {
 
@@ -86,18 +86,19 @@ export const Game = () => {
                                     score = 0
                                 }
 
-                                result = result + `${user.username}: ${score} \n`
+                                resultBuf = resultBuf + `${user.username}: ${score} \n`
 
                             })
 
-                            return result
+                            return resultBuf
                         }
 
                         const finalResult = await calculteResult()
 
                         if (finalResult != "Final Result: \n") {
-                            alert(finalResult)
+                            console.log(finalResult)
                         }
+
                     }
 
                     showResult()
@@ -157,8 +158,8 @@ export const Game = () => {
 
     const lobbyChannel = (channelProps: any) => {
         if (!cable.current) {
-            cable.current = actioncable.createConsumer('wss://dry-fjord-28793.herokuapp.com/cable')
-            // cable.current = actioncable.createConsumer('ws://127.0.0.1:3000/cable')
+            // cable.current = actioncable.createConsumer('wss://dry-fjord-28793.herokuapp.com/cable')
+            cable.current = actioncable.createConsumer('ws://127.0.0.1:3000/cable')
         }
 
         const createLobbyChannel = (channelProps: any) => {

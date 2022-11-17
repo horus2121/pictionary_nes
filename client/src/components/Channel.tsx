@@ -39,7 +39,7 @@ export const Channel = (props: any) => {
                                     </div>
                                 </div>
                             )
-                        } else {
+                        } else if (message.sender) {
                             return (
                                 <div className="message -left" key={uuidv4()}>
                                     <div className="nes-balloon from-left">
