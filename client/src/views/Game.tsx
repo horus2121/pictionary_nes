@@ -8,13 +8,15 @@ import { WordGenerator } from "../components/WordGenerator";
 import { PlayerList } from "../components/PlayerList";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { RootState } from "../app/store";
-import { lobbyChannel } from "../channels/lobby_channel";
+// import { lobbyChannel } from "../channels/lobby_channel";
 import { QuitLobby } from "../features/lobbiesSlice";
+import actioncable from "actioncable";
 
 export const Game = () => {
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
     const canvasRef = useRef(null)
+    const cable = useRef<any>(null)
     const currentLobby = useParams()
     const lobby = useAppSelector((state: RootState) => state.lobbies)
     const user = useAppSelector((state: RootState) => state.users)
@@ -46,23 +48,9 @@ export const Game = () => {
             },
 
             received(data: any) {
-                // TODO:
-                // Chat messages display issue
-                // Scores display issue
-
-                // Drop chat message table
-                // Clean all the associations related to chat messages
-
-                // Deploy:
-                // Migrate from sqlite to postgres, seperate impletation for dev and production?
-                // Redis config for deployment
-                // Scripts set up
-                // cors gem?
 
                 if (data.message || data.message === '') {
-                    console.log(data)
-                    console.log([...receivedMessage, data])
-                    if (receivedMessage.length < 20) {
+                    if (receivedMessage.length < 21) {
                         setReceivedMessage([...receivedMessage, data])
                     } else {
                         setReceivedMessage([...receivedMessage.slice(1, 21), data])
@@ -78,11 +66,12 @@ export const Game = () => {
                 } else if (data.game_status === 4) {
                     alert("The lobby has reached its capacity...")
                     dispatch(QuitLobby(lobby.id))
-                } else if (data.game_status === 2) {
+                } else if (data.game_status === 3) {
                     setGameOn(false)
                     setScores([])
+                } else if (data.game_status === 2) {
+                    console.log("stage 2...")
                     setWord('')
-                } else if (data.game_status === 3) {
                     const showResult = async () => {
                         let result = "Final Result: \n"
 
@@ -104,8 +93,11 @@ export const Game = () => {
                             return result
                         }
 
-                        let finalResult = await calculteResult()
-                        alert(finalResult)
+                        const finalResult = await calculteResult()
+
+                        if (finalResult != "Final Result: \n") {
+                            alert(finalResult)
+                        }
                     }
 
                     showResult()
@@ -163,7 +155,23 @@ export const Game = () => {
 
     }
 
+    const lobbyChannel = (channelProps: any) => {
+        if (!cable.current) {
+            cable.current = actioncable.createConsumer('wss://dry-fjord-28793.herokuapp.com/cable')
+            // cable.current = actioncable.createConsumer('ws://127.0.0.1:3000/cable')
+        }
+
+        const createLobbyChannel = (channelProps: any) => {
+            return cable.current.subscriptions.create(channelProps.lobbyParams, channelProps.handlers)
+        }
+
+        const lobbyChannel = createLobbyChannel(channelProps)
+
+        return lobbyChannel
+    }
+
     useEffect(() => {
+
         const sub = lobbyChannel(channelProps)
 
         if (!lobby.id) {

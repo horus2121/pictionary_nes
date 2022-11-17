@@ -11,9 +11,11 @@ class LobbyChannel < ApplicationCable::Channel
 
     if lobby.in_game == true
         ActionCable.server.broadcast "lobby_#{lobby_id}_#{current_user.id}", { game_status: 0}
+        # lobby entry is closed, game is running
         reject
     elsif lobby.users.length() > 6
         ActionCable.server.broadcast "lobby_#{lobby_id}_#{current_user.id}", { game_status: 4}
+        # lobby entry is closed, game reached capacity
         reject
     end
 
@@ -64,6 +66,7 @@ class LobbyChannel < ApplicationCable::Channel
 
           ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", { word: result }
           ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", { game_status: 1, current_drawer: drawer.username}
+          # game is running, set current_drawer
 
       end
 
@@ -80,10 +83,12 @@ class LobbyChannel < ApplicationCable::Channel
 
     users.each do |user|
         ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", { game_status: 2}
+        # result displaying stage
     end
 
     users.each do |user|
         ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", { game_status: 3}
+        # game is over, open lobby entry
     end
 
     lobby.update!(in_game: false)

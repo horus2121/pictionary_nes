@@ -21,11 +21,11 @@ export const PlayerList = (props: any) => {
 
     return (
         <div className="lists absolute left-10 top-80">
-            <ul className="nes-list is-circle">
+            {/* <ul className="nes-list is-circle">
                 {currentLobbyUsers && currentLobbyUsers.map((user: any) => {
                     return <li key={user.id}>{user.username}</li>
                 })}
-            </ul>
+            </ul> */}
         </div>
     )
 }

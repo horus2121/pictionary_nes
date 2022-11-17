@@ -1,5 +1,4 @@
 class User < ApplicationRecord
-    has_many :chat_messages, dependent: :destroy
     belongs_to :lobby, optional: true
     has_secure_password
 

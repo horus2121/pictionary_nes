@@ -1,5 +1,4 @@
 class Lobby < ApplicationRecord
-    has_many :chat_messages, dependent: :destroy
     has_many :users
     belongs_to :user
 

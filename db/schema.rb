@@ -10,17 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_11_11_030045) do
-
-  create_table "chat_messages", force: :cascade do |t|
-    t.text "content"
-    t.integer "user_id", null: false
-    t.integer "lobby_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["lobby_id"], name: "index_chat_messages_on_lobby_id"
-    t.index ["user_id"], name: "index_chat_messages_on_user_id"
-  end
+ActiveRecord::Schema.define(version: 2022_11_16_120402) do
 
   create_table "lobbies", force: :cascade do |t|
     t.string "title"
@@ -51,7 +41,5 @@ ActiveRecord::Schema.define(version: 2022_11_11_030045) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  add_foreign_key "chat_messages", "lobbies"
-  add_foreign_key "chat_messages", "users"
   add_foreign_key "users", "lobbies"
 end
