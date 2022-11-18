@@ -17,6 +17,7 @@ export const Game = () => {
     const navigate = useNavigate()
     const canvasRef = useRef(null)
     // const cable = useRef<any>(null)
+    const chatListRef = useRef<any>(null)
     const currentLobby = useParams()
     const lobby = useAppSelector((state: RootState) => state.lobbies)
     const user = useAppSelector((state: RootState) => state.users)
@@ -50,11 +51,27 @@ export const Game = () => {
             received(data: any) {
 
                 if (data.message || data.message === '') {
-                    if (receivedMessage.length < 21) {
-                        setReceivedMessage([...receivedMessage, data])
+                    // if (receivedMessage.length < 21) {
+                    //     setReceivedMessage([...receivedMessage, data])
+                    // } else {
+                    //     setReceivedMessage([...receivedMessage.slice(1, 21), data])
+                    // }
+                    setReceivedMessage(data)
+                    if (!chatListRef) return
+                    const chatList = chatListRef.current
+
+                    const newMessage = document.createElement('p')
+                    if (data.sender === user.username) {
+                        newMessage.innerHTML = "me: " + data.message
                     } else {
-                        setReceivedMessage([...receivedMessage.slice(1, 21), data])
+                        newMessage.innerHTML = data.sender + ": " + data.message
                     }
+                    chatList.appendChild(newMessage)
+
+                    if (chatList.children.length > 100) {
+                        chatList.firstChild.remove()
+                    }
+                    // <p className="text-sm">me: {message.message}</p>
                 } else if (data.canvas_path) {
                     setReceivedCanvasPath(data.canvas_path)
                 } else if (data.game_status === 1) {
@@ -250,6 +267,7 @@ export const Game = () => {
                 <button className="absolute top-1/3 left-1/2 nes-text is-error" onClick={handleStartGame}>Start</button>
             }
             <Channel
+                chatListRef={chatListRef}
                 handleUpstream={handleSendMessage}
                 receivedMessage={receivedMessage} />
         </div>

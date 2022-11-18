@@ -5,19 +5,20 @@ import { v4 as uuidv4 } from "uuid";
 
 export const Channel = (props: any) => {
 
-    const { handleUpstream, receivedMessage } = props
+    const { handleUpstream, receivedMessage, chatListRef } = props
     const [message, setMessage] = useState('')
     const user = useAppSelector((state: RootState) => state.users)
-    const chatRef = useRef<any>(null)
+    const chatContainerRef = useRef<any>(null)
 
     useEffect(() => {
 
-        if (!chatRef) return
-        const chatContainer = chatRef.current
+        if (!chatContainerRef) return
+        const chatContainer = chatContainerRef.current
 
         chatContainer.maxScrollTop = chatContainer.scrollHeight - chatContainer.offsetHeight
 
-        if (chatContainer.maxScrollTop - chatContainer.scrollTop <= chatContainer.offsetHeight) {
+        // chatContainer.maxScrollTop - chatContainer.scrollTop <= chatContainer.offsetHeight
+        if (chatContainer.scrollTop <= chatContainer.offsetHeight) {
             chatContainer.scrollTop = chatContainer.scrollHeight
         } else {
 
@@ -27,10 +28,10 @@ export const Channel = (props: any) => {
 
     return (
         <div className="row-start-7 col-start-2 col-span-5 mb-12">
-            <div ref={chatRef} className="nes-container h-40 overflow-scroll">
-                <div className="message-list">
+            <div ref={chatContainerRef} className="nes-container h-40 overflow-scroll">
+                <div ref={chatListRef} className="message-list">
 
-                    {receivedMessage && receivedMessage.map((message: any) => {
+                    {/* {receivedMessage && receivedMessage.map((message: any) => {
                         if (user.username === message.sender) {
                             return (
                                 <div className="message -right" key={uuidv4()}>
@@ -48,7 +49,7 @@ export const Channel = (props: any) => {
                                 </div>
                             )
                         }
-                    })}
+                    })} */}
 
                 </div>
             </div>
