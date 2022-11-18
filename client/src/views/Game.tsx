@@ -10,13 +10,11 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { RootState } from "../app/store";
 import { lobbyChannel } from "../channels/lobby_channel";
 import { QuitLobby } from "../features/lobbiesSlice";
-// import actioncable from "actioncable";
 
 export const Game = () => {
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
     const canvasRef = useRef(null)
-    // const cable = useRef<any>(null)
     const chatListRef = useRef<any>(null)
     const currentLobby = useParams()
     const lobby = useAppSelector((state: RootState) => state.lobbies)

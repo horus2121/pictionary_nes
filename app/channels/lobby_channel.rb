@@ -6,6 +6,7 @@ class LobbyChannel < ApplicationCable::Channel
 
     lobby_id = params[:lobby_id]
     lobby = Lobby.find_by(lobby_id)
+    users = lobby.users
 
     stream_from "lobby_#{lobby_id}_#{current_user.id}"
 
@@ -17,6 +18,10 @@ class LobbyChannel < ApplicationCable::Channel
         ActionCable.server.broadcast "lobby_#{lobby_id}_#{current_user.id}", { game_status: 4}
         # lobby entry is closed, game reached capacity
         reject
+    end
+
+    users.each do |user|
+      ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", { message: "#{current_user.username} has joined the lobby.", sender: "System" }
     end
 
   end
@@ -44,6 +49,13 @@ class LobbyChannel < ApplicationCable::Channel
   def unsubscribed
 
     lobby_id = params[:lobby_id]
+    lobby = Lobby.find_by(lobby_id)
+    users = lobby.users
+
+    users.each do |user|
+      ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", { message: "#{current_user.username} has left.", sender: "System" }
+    end
+
     stop_stream_from "lobby_#{lobby_id}_#{current_user.id}"
 
   end
