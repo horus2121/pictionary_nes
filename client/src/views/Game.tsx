@@ -16,20 +16,22 @@ export const Game = () => {
     const navigate = useNavigate()
     const canvasRef = useRef(null)
     const chatListRef = useRef<any>(null)
+    const chatInputRef = useRef<any>(null)
     const currentLobby = useParams()
     const lobby = useAppSelector((state: RootState) => state.lobbies)
     const user = useAppSelector((state: RootState) => state.users)
+
+    const [sub, setSub] = useState<any>(null)
     const [receivedCanvasPath, setReceivedCanvasPath] = useState({})
     const [receivedMessage, setReceivedMessage] = useState<any>([])
-
     const [gameOn, setGameOn] = useState(false)
     const [currentDrawer, setCurrentDrawer] = useState('')
     const [drawOn, setDrawOn] = useState(false)
     const [isLobbyOwner, setIsLobbyOwner] = useState(false)
-
     const [word, setWord] = useState('')
     const [currentLobbyUsers, setCurrentLobbyUsers] = useState<any>([])
     const [scores, setScores] = useState<any>([])
+
 
     const channelProps = {
         lobbyParams: {
@@ -49,7 +51,7 @@ export const Game = () => {
             received(data: any) {
 
                 if (data.message || data.message === '') {
-                    // if (receivedMessage.length < 21) {
+                    // if (receivedMessage.length < 101) {
                     //     setReceivedMessage([...receivedMessage, data])
                     // } else {
                     //     setReceivedMessage([...receivedMessage.slice(1, 21), data])
@@ -61,15 +63,16 @@ export const Game = () => {
                     const newMessage = document.createElement('p')
                     if (data.sender === user.username) {
                         newMessage.innerHTML = "me: " + data.message
+                        // <p className="text-sm">me: {data.message}</p>
                     } else {
                         newMessage.innerHTML = data.sender + ": " + data.message
+                        // <p className="text-sm">{data.username}: {data.message}</p>
                     }
                     chatList.appendChild(newMessage)
 
                     if (chatList.children.length > 100) {
                         chatList.firstChild.remove()
                     }
-                    // <p className="text-sm">me: {message.message}</p>
                 } else if (data.canvas_path) {
                     setReceivedCanvasPath(data.canvas_path)
                 } else if (data.game_status === 1) {
@@ -86,36 +89,50 @@ export const Game = () => {
                     setScores([])
                 } else if (data.game_status === 2) {
                     setWord('')
-                    const showResult = async () => {
-                        let resultBuf = "Final Result: \n"
 
-                        const calculteResult = async () => {
+                    // const calculteResult = async () => {
 
-                            currentLobbyUsers && currentLobbyUsers.forEach((user: any) => {
-                                let score
+                    //     let resultBuf = "Final Result: \n"
 
-                                if (scores.some((user_score: any) => user_score.username === user.username ? true : false)) {
-                                    score = scores.find((user_score: any) => user_score.username === user.username).score
-                                } else {
-                                    score = 0
-                                }
+                    //     currentLobbyUsers && currentLobbyUsers.forEach((user: any) => {
+                    //         let score
 
-                                resultBuf = resultBuf + `${user.username}: ${score} \n`
+                    //         if (scores.some((user_score: any) => user_score.username === user.username ? true : false)) {
+                    //             score = scores.find((user_score: any) => user_score.username === user.username).score
+                    //         } else {
+                    //             score = 0
+                    //         }
 
-                            })
+                    //         resultBuf = resultBuf + `${user.username}: ${score} \n`
 
-                            return resultBuf
+                    //     })
+
+                    //     return resultBuf
+                    // }
+
+                    // calculteResult().then(result => {
+                    //     console.log(result)
+                    //     if (result != "Final Result: \n") {
+                    //         console.log(result)
+                    //     }
+                    // })
+
+                    const result = currentLobbyUsers && currentLobbyUsers.reduce((prev: any, curr: any) => {
+                        let score
+                        console.log(curr)
+
+                        if (scores.some((user_score: any) => user_score.username === curr.username ? true : false)) {
+                            score = scores.find((user_score: any) => user_score.username === curr.username).score
+                        } else {
+                            score = 0
                         }
 
-                        const finalResult = await calculteResult()
+                        const resultTem = prev + `${curr.username}: ${score} \n`
 
-                        if (finalResult != "Final Result: \n") {
-                            console.log(finalResult)
-                        }
+                        return resultTem
+                    }, 'Final Result: \n')
+                    console.log(result)
 
-                    }
-
-                    showResult()
                 } else if (data.word) {
                     setWord(data.word)
                 } else if (data.scored_player) {
@@ -146,26 +163,25 @@ export const Game = () => {
 
     const handleSendMessage = (message: string) => {
 
-        const sub = lobbyChannel(channelProps)
-
         if (gameOn && message === word) {
             sub.send({ scored_player: user.username })
         } else {
             sub.send({ message: message, sender: user.username })
         }
 
+        if (chatInputRef) {
+            chatInputRef.current.value = ''
+        }
     }
 
     const handleSendCanvasPath = (canvasPath: any) => {
 
-        const sub = lobbyChannel(channelProps)
         sub.send({ canvas_path: canvasPath })
 
     }
 
     const handleStartGame = () => {
 
-        const sub = lobbyChannel(channelProps)
         sub.perform("game_loop")
 
     }
@@ -187,7 +203,7 @@ export const Game = () => {
 
     useEffect(() => {
 
-        const sub = lobbyChannel(channelProps)
+        setSub(lobbyChannel(channelProps))
 
         if (!lobby.id) {
             sub.unsubscribe()
@@ -234,7 +250,6 @@ export const Game = () => {
 
         canvas.resetCanvas()
 
-        const sub = lobbyChannel(channelProps)
         sub.send({ command: 1 })
     }
 
@@ -266,6 +281,7 @@ export const Game = () => {
             }
             <Channel
                 chatListRef={chatListRef}
+                chatInputRef={chatInputRef}
                 handleUpstream={handleSendMessage}
                 receivedMessage={receivedMessage} />
         </div>

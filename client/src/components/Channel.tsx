@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 
 export const Channel = (props: any) => {
 
-    const { handleUpstream, receivedMessage, chatListRef } = props
+    const { handleUpstream, receivedMessage, chatListRef, chatInputRef } = props
     const [message, setMessage] = useState('')
     const user = useAppSelector((state: RootState) => state.users)
     const chatContainerRef = useRef<any>(null)
@@ -18,7 +18,7 @@ export const Channel = (props: any) => {
         chatContainer.maxScrollTop = chatContainer.scrollHeight - chatContainer.offsetHeight
 
         // chatContainer.maxScrollTop - chatContainer.scrollTop <= chatContainer.offsetHeight
-        if (chatContainer.scrollTop <= chatContainer.offsetHeight) {
+        if (chatContainer.scrollTop <= chatContainer.offsetHeight * 2) {
             chatContainer.scrollTop = chatContainer.scrollHeight
         } else {
 
@@ -56,7 +56,7 @@ export const Channel = (props: any) => {
 
 
             <div className="nes-field mt-2">
-                <input type="text" id="message" className="nes-input" placeholder="Enter your message..." onChange={(e) => setMessage(e.target.value)} />
+                <input ref={chatInputRef} type="text" id="message" className="nes-input" placeholder="Enter your message..." onChange={(e) => setMessage(e.target.value)} />
                 <button onClick={() => handleUpstream(message)}>Send</button>
             </div>
         </div>
