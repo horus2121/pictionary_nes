@@ -64,6 +64,9 @@ export const Game = () => {
                     if (data.sender === user.username) {
                         newMessage.innerHTML = "me: " + data.message
                         // <p className="text-sm">me: {data.message}</p>
+                    } else if (data.sender === "System") {
+                        newMessage.innerHTML = data.sender + ": " + data.message
+                        newMessage.className = "nes-text is-error"
                     } else {
                         newMessage.innerHTML = data.sender + ": " + data.message
                         // <p className="text-sm">{data.username}: {data.message}</p>
@@ -137,6 +140,7 @@ export const Game = () => {
                     setWord(data.word)
                 } else if (data.scored_player) {
 
+                    console.log(data)
                     const updatedScores = () => {
                         if (scores.length === 0) {
                             return [...scores, { username: data.scored_player, score: 10 }]
@@ -144,8 +148,9 @@ export const Game = () => {
                             return scores.map((user: any) => user.username === data.scored_player ? { ...user, score: user.score + 10 } : user)
                         }
                     }
+                    console.log(updatedScores())
 
-                    setScores(updatedScores)
+                    setScores(updatedScores())
                 } else if (data.command) {
                     if (data.command === 1) {
                         if (!canvasRef.current) return
@@ -276,8 +281,14 @@ export const Game = () => {
             <ScoreBoard
                 scores={scores}
                 currentLobbyUsers={currentLobbyUsers} />
-            {!gameOn && isLobbyOwner &&
+            {/* {!gameOn && isLobbyOwner &&
                 <button className="absolute top-1/3 left-1/2 nes-text is-error" onClick={handleStartGame}>Start</button>
+            } */}
+            {gameOn ?
+                <></>
+                : isLobbyOwner ?
+                    <button className="absolute top-1/3 left-1/2 nes-text is-error" onClick={handleStartGame}>Start</button>
+                    : <p className="absolute top-1/3 left-1/3 nes-text is-error">Waiting owner to start the game...</p>
             }
             <Channel
                 chatListRef={chatListRef}

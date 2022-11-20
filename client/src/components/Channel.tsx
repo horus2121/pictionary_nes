@@ -26,6 +26,12 @@ export const Channel = (props: any) => {
 
     }, [receivedMessage])
 
+    const onEnterKey = (e: any) => {
+        if (e.key === "Enter") {
+            handleUpstream(message)
+        }
+    }
+
     return (
         <div className="row-start-7 col-start-2 col-span-5 mb-12">
             <div ref={chatContainerRef} className="nes-container h-40 overflow-scroll">
@@ -56,7 +62,7 @@ export const Channel = (props: any) => {
 
 
             <div className="nes-field mt-2">
-                <input ref={chatInputRef} type="text" id="message" className="nes-input" placeholder="Enter your message..." onChange={(e) => setMessage(e.target.value)} />
+                <input ref={chatInputRef} type="text" id="message" className="nes-input" placeholder="Enter your message..." onKeyDown={onEnterKey} onChange={(e) => setMessage(e.target.value)} />
                 <button onClick={() => handleUpstream(message)}>Send</button>
             </div>
         </div>
