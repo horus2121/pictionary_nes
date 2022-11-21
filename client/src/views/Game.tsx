@@ -23,7 +23,6 @@ export const Game = () => {
     const user = useAppSelector((state: RootState) => state.users)
 
     const [sub, setSub] = useState<any>(null)
-    const [receivedCanvasPath, setReceivedCanvasPath] = useState({})
     const [receivedMessage, setReceivedMessage] = useState<any>([])
     const [gameOn, setGameOn] = useState(false)
     const [currentDrawer, setCurrentDrawer] = useState('')
@@ -76,7 +75,11 @@ export const Game = () => {
                         chatList.firstChild.remove()
                     }
                 } else if (data.canvas_path) {
-                    setReceivedCanvasPath(data.canvas_path)
+                    // setReceivedCanvasPath(data.canvas_path)
+                    if (!canvasRef.current) return
+                    const canvas: any = canvasRef.current
+
+                    canvas.loadPaths(data.canvas_path)
                 } else if (data.game_status === 1) {
                     setGameOn(true)
                     setCurrentDrawer(data.current_drawer)
@@ -305,9 +308,6 @@ export const Game = () => {
                 canvasRef={canvasRef}
                 drawOn={drawOn}
                 handleUpstream={handleSendCanvasPath}
-                receivedCanvasPath={receivedCanvasPath}
-                setReceivedCanvasPath={setReceivedCanvasPath}
-                handleStartGame={handleStartGame}
                 bin={bin}
                 gameOn={gameOn} />
             <ScoreBoard

@@ -12,7 +12,7 @@ const styles = {
 
 export const Canvas = (props: any) => {
 
-    const { canvasRef, gameOn, drawOn, handleUpstream, receivedCanvasPath, bin } = props
+    const { canvasRef, gameOn, drawOn, handleUpstream, bin } = props
     const [strokeColor, setStrokeColor] = useState('black')
     const [strokeWidth, setStrokeWidth] = useState(4)
     const [pointerInCanvasRange, setPointerInCanvasRange] = useState(false)
@@ -49,13 +49,13 @@ export const Canvas = (props: any) => {
         }
     }
 
-    useEffect(() => {
-        if (!canvasRef.current) return
-        const canvas: any = canvasRef.current
+    // useEffect(() => {
+    //     if (!canvasRef.current) return
+    //     const canvas: any = canvasRef.current
 
-        if (!receivedCanvasPath || Object.keys(receivedCanvasPath).length === 0) return
-        canvas.loadPaths(receivedCanvasPath)
-    }, [receivedCanvasPath])
+    //     if (!receivedCanvasPath || Object.keys(receivedCanvasPath).length === 0) return
+    //     canvas.loadPaths(receivedCanvasPath)
+    // }, [receivedCanvasPath])
 
     return (
         <>
