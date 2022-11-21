@@ -1,12 +1,12 @@
 export const ScoreBoard = (props: any) => {
 
-    const { currentLobbyUsers, scores } = props
+    const { scoreboardRef } = props
 
     return (
         <div className="with-title is-centered col-start-7 row-start-2 mr-5">
-            <p className="title">Score Board</p>
+            <p ref={scoreboardRef} className="title">Score Board</p>
 
-            {currentLobbyUsers && currentLobbyUsers.map((user: any) => {
+            {/* {currentLobbyUsers && currentLobbyUsers.map((user: any) => {
 
                 let score
 
@@ -24,7 +24,7 @@ export const ScoreBoard = (props: any) => {
                         <progress className="nes-progress" id={user.id} key={user.id} value={score} max="100"></progress>
                     </>
                 )
-            })}
+            })} */}
         </div>
     )
 }

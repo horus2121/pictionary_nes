@@ -17,6 +17,7 @@ export const Game = () => {
     const canvasRef = useRef(null)
     const chatListRef = useRef<any>(null)
     const chatInputRef = useRef<any>(null)
+    const scoreboardRef = useRef<any>(null)
     const currentLobby = useParams()
     const lobby = useAppSelector((state: RootState) => state.lobbies)
     const user = useAppSelector((state: RootState) => state.users)
@@ -30,8 +31,6 @@ export const Game = () => {
     const [isLobbyOwner, setIsLobbyOwner] = useState(false)
     const [word, setWord] = useState('')
     const [currentLobbyUsers, setCurrentLobbyUsers] = useState<any>([])
-    const [scores, setScores] = useState<any>([])
-
 
     const channelProps = {
         lobbyParams: {
@@ -89,68 +88,57 @@ export const Game = () => {
                     dispatch(QuitLobby(lobby.id))
                 } else if (data.game_status === 3) {
                     setGameOn(false)
-                    setScores([])
+
+                    const progresses = document.querySelectorAll("progress")
+                    progresses && progresses.forEach((progress: any) => {
+                        progress.className = progress.className.replace("is-scored", "")
+                        progress.value = 0
+                    })
                 } else if (data.game_status === 2) {
                     setWord('')
 
-                    // const calculteResult = async () => {
+                    // const result = currentLobbyUsers && currentLobbyUsers.reduce((prev: any, curr: any) => {
 
-                    //     let resultBuf = "Final Result: \n"
+                    //     console.log(curr)
+                    //     const progress: any = document.querySelector(`#progress${curr.id}`)
+                    //     if (!progress) return
+                    //     const score = progress.value
 
-                    //     currentLobbyUsers && currentLobbyUsers.forEach((user: any) => {
-                    //         let score
+                    //     const resultTem = prev + `${curr.username}: ${score} \n`
 
-                    //         if (scores.some((user_score: any) => user_score.username === user.username ? true : false)) {
-                    //             score = scores.find((user_score: any) => user_score.username === user.username).score
-                    //         } else {
-                    //             score = 0
-                    //         }
+                    //     return resultTem
+                    // }, 'Final Result: \n')
+                    // console.log(result)
 
-                    //         resultBuf = resultBuf + `${user.username}: ${score} \n`
+                    let result = "Final Result: \n"
 
-                    //     })
+                    const progresses = document.querySelectorAll("progress")
+                    progresses && progresses.forEach((progress: any) => {
+                        result = result + progress.innerHTML + ": " + progress.value + " \n"
+                    })
 
-                    //     return resultBuf
-                    // }
-
-                    // calculteResult().then(result => {
-                    //     console.log(result)
-                    //     if (result != "Final Result: \n") {
-                    //         console.log(result)
-                    //     }
-                    // })
-
-                    const result = currentLobbyUsers && currentLobbyUsers.reduce((prev: any, curr: any) => {
-                        let score
-                        console.log(curr)
-
-                        if (scores.some((user_score: any) => user_score.username === curr.username ? true : false)) {
-                            score = scores.find((user_score: any) => user_score.username === curr.username).score
-                        } else {
-                            score = 0
-                        }
-
-                        const resultTem = prev + `${curr.username}: ${score} \n`
-
-                        return resultTem
-                    }, 'Final Result: \n')
-                    console.log(result)
-
+                    alert(result)
                 } else if (data.word) {
                     setWord(data.word)
                 } else if (data.scored_player) {
+                    if (data.scored_player.username === data.drawer) return
 
-                    console.log(data)
-                    const updatedScores = () => {
-                        if (scores.length === 0) {
-                            return [...scores, { username: data.scored_player, score: 10 }]
-                        } else {
-                            return scores.map((user: any) => user.username === data.scored_player ? { ...user, score: user.score + 10 } : user)
-                        }
+                    const progress: any = document.querySelector(`#progress${data.scored_player.id}`)
+                    if (progress && !progress.className.includes("is-scored")) {
+                        progress.value = progress.value + 10
+                        progress.className = progress.className + " is-scored"
                     }
-                    console.log(updatedScores())
+                    // console.log(data)
+                    // const updatedScores = () => {
+                    //     if (scores.length === 0) {
+                    //         return [...scores, { username: data.scored_player, score: 10 }]
+                    //     } else {
+                    //         return scores.map((user: any) => user.username === data.scored_player ? { ...user, score: user.score + 10 } : user)
+                    //     }
+                    // }
+                    // console.log(updatedScores())
 
-                    setScores(updatedScores())
+                    // setScores(updatedScores())
                 } else if (data.command) {
                     if (data.command === 1) {
                         if (!canvasRef.current) return
@@ -169,7 +157,7 @@ export const Game = () => {
     const handleSendMessage = (message: string) => {
 
         if (gameOn && message === word) {
-            sub.send({ scored_player: user.username })
+            sub.send({ scored_player: { username: user.username, id: user.id }, drawer: currentDrawer })
         } else {
             sub.send({ message: message, sender: user.username })
         }
@@ -224,6 +212,41 @@ export const Game = () => {
 
     useEffect(() => {
 
+        if (!scoreboardRef) return
+        const scoreboard = scoreboardRef.current
+
+        if (scoreboard.children.length < currentLobbyUsers.length) {
+            currentLobbyUsers && currentLobbyUsers.forEach((user: any) => {
+
+                const newDiv = document.createElement('div')
+                const newLable = document.createElement('lable')
+                const newSpan = document.createElement('span')
+                const newProgress = document.createElement('progress')
+
+                newSpan.innerHTML = user.username
+                newSpan.className = "nes-text is-success"
+
+                // <progress className="nes-progress" id={user.id} key={user.id} value={score} max="100"></progress>
+                newProgress.className = "nes-progress"
+                newProgress.id = `progress${user.id}`
+                newProgress.value = 0
+                newProgress.max = 100
+                newProgress.innerHTML = user.username
+
+                newLable.appendChild(newSpan)
+                newDiv.appendChild(newLable)
+                newDiv.appendChild(newProgress)
+                scoreboard.appendChild(newDiv)
+
+            })
+        } else if (scoreboard.children.length > currentLobbyUsers.length) {
+            scoreboard.firstChild.remove()
+        }
+
+    }, [currentLobbyUsers])
+
+    useEffect(() => {
+
         if (user.username === currentDrawer) {
             setDrawOn(true)
         } else {
@@ -248,6 +271,15 @@ export const Game = () => {
 
 
     }, [user, lobby, currentLobbyUsers])
+
+    useEffect(() => {
+
+        const progresses = document.querySelectorAll("progress")
+        progresses && progresses.forEach((progress: any) => {
+            progress.className = progress.className.replace("is-scored", "")
+        })
+
+    }, [currentDrawer])
 
     const bin = () => {
         if (!canvasRef.current) return
@@ -279,11 +311,8 @@ export const Game = () => {
                 bin={bin}
                 gameOn={gameOn} />
             <ScoreBoard
-                scores={scores}
+                scoreboardRef={scoreboardRef}
                 currentLobbyUsers={currentLobbyUsers} />
-            {/* {!gameOn && isLobbyOwner &&
-                <button className="absolute top-1/3 left-1/2 nes-text is-error" onClick={handleStartGame}>Start</button>
-            } */}
             {gameOn ?
                 <></>
                 : isLobbyOwner ?
