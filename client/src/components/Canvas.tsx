@@ -62,6 +62,8 @@ export const Canvas = (props: any) => {
             <div
                 style={gameOn && drawOn ? { pointerEvents: "auto", height: "500px" } : { pointerEvents: "none", height: "500px" }}
                 className="nes-container with-title is-centered col-start-2 col-span-5 row-start-2 row-span-4"
+                onTouchStart={() => setPointerInCanvasRange(true)}
+                onTouchEnd={() => setPointerInCanvasRange(false)}
                 onMouseDown={() => setPointerInCanvasRange(true)}
                 onMouseUp={() => setPointerInCanvasRange(false)}>
                 <p className="title">Canvas</p>

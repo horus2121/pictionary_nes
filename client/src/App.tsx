@@ -23,7 +23,6 @@ export const App = () => {
     fetch('/me').then(res => {
       if (res.ok) {
         res.json().then(user => {
-          console.log(user)
           dispatch({ type: 'users/loginUser', payload: user })
         })
       }
