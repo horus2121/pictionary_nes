@@ -38,6 +38,20 @@ class LobbyChannel < ApplicationCable::Channel
         unless user.id == current_user.id
           ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", data
         end
+      elsif data.include? "scored_player" 
+        ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", data
+
+        if data["scored_player"]["username"] == data["drawer"]
+          if user.id == data["scored_player"]["id"] 
+            ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", { message: "Please focus on your drawing!", sender: "System" }
+          end
+        else
+          if user.id == data["scored_player"]["id"]
+            ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", { message: "You got the answer!", sender: "System" }
+          else
+            ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", { message: "#{data["scored_player"]["username"]} guessed the answer!", sender: "System" }
+          end
+        end
       else
         ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", data
       end
@@ -79,10 +93,12 @@ class LobbyChannel < ApplicationCable::Channel
           ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", { word: result }
           ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", { game_status: 1, current_drawer: drawer.username}
           # game is running, set current_drawer
+          ActionCable.server.broadcast "lobby_#{lobby_id}_#{user.id}", { timer: 0 }
+          # start the timer on the front-end
 
       end
 
-      sleep 20
+      sleep 30
 
       users.each do |user|
 

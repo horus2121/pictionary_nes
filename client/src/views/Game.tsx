@@ -31,6 +31,9 @@ export const Game = () => {
     const [word, setWord] = useState('')
     const [currentLobbyUsers, setCurrentLobbyUsers] = useState<any>([])
 
+    const timerRef = useRef<any>(null)
+    const [timer, setTimer] = useState<any>('00:00:00')
+
     const channelProps = {
         lobbyParams: {
             channel: "LobbyChannel",
@@ -149,6 +152,8 @@ export const Game = () => {
 
                         canvas.resetCanvas()
                     }
+                } else if (data.timer === 0) {
+                    timerReset()
                 } else {
                     console.log(data)
                 }
@@ -293,6 +298,54 @@ export const Game = () => {
         sub.send({ command: 1 })
     }
 
+    const getTimeRemaining = (e: any) => {
+        const currentTime: any = new Date()
+        const total = Date.parse(e) - Date.parse(currentTime);
+
+        const seconds = Math.floor((total / 1000) % 60);
+        const minutes = Math.floor((total / 1000 / 60) % 60);
+        const hours = Math.floor((total / 1000 / 60 / 60) % 24);
+
+        return { total, hours, minutes, seconds }
+    }
+
+
+    const startTimer = (e: any) => {
+        let { total, hours, minutes, seconds } = getTimeRemaining(e)
+        if (total >= 0) {
+
+            // update the timer
+            // check if less than 10 then we need to 
+            // add '0' at the beginning of the variable
+            setTimer(
+                (hours > 9 ? hours : '0' + hours) + ':' +
+                (minutes > 9 ? minutes : '0' + minutes) + ':'
+                + (seconds > 9 ? seconds : '0' + seconds)
+            )
+        }
+    }
+
+
+    const clearTimer = (e: any) => {
+
+        setTimer('00:00:30');
+
+        if (timerRef.current) clearInterval(timerRef.current);
+        const id = setInterval(() => { startTimer(e) }, 1000)
+        timerRef.current = id;
+    }
+
+    const getDeadTime = () => {
+        let deadline = new Date();
+
+        deadline.setSeconds(deadline.getSeconds() + 30);
+        return deadline;
+    }
+
+    const timerReset = () => {
+        clearTimer(getDeadTime());
+    }
+
     return (
         <div className='grid grid-cols-7 gap-3'>
             <PlayerList
@@ -313,10 +366,19 @@ export const Game = () => {
             <ScoreBoard
                 scoreboardRef={scoreboardRef}
                 currentLobbyUsers={currentLobbyUsers} />
+            {
+                gameOn ?
+                    <p className="absolute top-5 right-40 nes-text is-error">{timer}</p>
+                    : <></>
+            }
             {gameOn ?
                 <></>
                 : isLobbyOwner ?
-                    <button className="absolute top-1/3 left-1/2 nes-text is-error" onClick={handleStartGame}>Start</button>
+                    <div className="absolute top-1/3 left-1/2">
+                        <i className="nes-ash" ></i>
+                        <p className="nes-text is-error cursor-pointer" onClick={handleStartGame}>Start!</p>
+                    </div>
+                    // <button className="absolute top-5 left-40 nes-text is-error" onClick={handleStartGame}>Start</button>
                     : <p className="absolute top-1/3 left-1/3 nes-text is-error">Waiting owner to start the game...</p>
             }
             <Channel

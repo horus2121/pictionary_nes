@@ -89,7 +89,7 @@ export const PreGame = () => {
                     <ul className="nes-list is-circle">
                         {
                             lobbyList && lobbyList.map((lobby: any) =>
-                                <li key={lobby.id} value={lobby.id} onClick={handleLobbySelection}>Lobby {lobby.id}</li>)
+                                <li key={lobby.id} value={lobby.id} onClick={handleLobbySelection}>Lobby {lobby.id}: {lobby.title}</li>)
                         }
                     </ul>
                 </div>

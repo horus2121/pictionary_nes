@@ -34,9 +34,9 @@ export const App = () => {
   return (
     <Router>
       <Routes>
+        <Route path='/' element={<Home />} />
         <Route path='/' element={<Layout />}>
 
-          <Route index element={<Home />} />
           <Route path='login' element={user.isLoggedIn ? <Navigate to='/pregame' /> : <Login />} />
           <Route path='signup' element={<SignUp />} />
 

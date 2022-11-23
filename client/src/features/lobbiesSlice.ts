@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { stat } from "fs";
 
 interface InitialState {
     id: number | null,
@@ -33,7 +32,7 @@ const lobbiesSlice = createSlice({
                 state.mode = mode
                 state.userID = user_id
             } else {
-                console.log(action.payload.error)
+                alert(action.payload.error)
             }
         }).addCase(CreateLobby.rejected, () => {
             alert("Invalid Lobby set up...")
@@ -48,7 +47,7 @@ const lobbiesSlice = createSlice({
                 state.mode = mode
                 state.userID = user_id
             } else {
-                console.log(action.payload.error)
+                alert(action.payload.error)
             }
         }).addCase(QuitLobby.fulfilled, (state) => {
 

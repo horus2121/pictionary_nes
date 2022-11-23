@@ -84,19 +84,25 @@ export const Tools = (props: any) => {
     return (
         <div
             style={gameOn && drawOn ? { pointerEvents: "auto" } : { pointerEvents: "none" }}
-            className="flex flex-wrap col-start-3 col-span-3 row-start-6">
-            <button type="button" className="nes-btn is-primary" onClick={pen}>Pencil</button>
-            <button type="button" className="nes-btn is-success" onClick={eraser}>Eraser</button>
-            <button type="button" className="nes-btn is-warning" onClick={bin}>CleanAll</button>
+            className="flex flex-row col-start-2 col-span-5 row-start-6">
+            <div className="w-40 shrink">
+                <button type="button" className="nes-btn is-primary shrink cursot-pointer" onClick={pen}>Pencil</button>
+            </div>
+            <div className="w-40 shrink">
+                <button type="button" className="nes-btn is-success shrink cursot-pointer" onClick={eraser}>Eraser</button>
+            </div>
+            <div className="w-40 shrink">
+                <button type="button" className="nes-btn is-warning shrink cursot-pointer" onClick={bin}>CleanAll</button>
+            </div>
 
-            <div className="nes-select w-40">
+            <div className="nes-select w-40 shrink cursot-pointer">
                 <select required id="color" defaultValue="" onChange={switchColor}>
                     <option value="" disabled hidden>Color...</option>
                     {colorOptions}
                 </select>
             </div>
 
-            <div className="nes-select w-40">
+            <div className="nes-select w-40 shrink cursot-pointer">
                 <select required id="width" defaultValue="" onChange={changeWidth}>
                     <option value="" disabled hidden>Width...</option>
                     {widthOptions}

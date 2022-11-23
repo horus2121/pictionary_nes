@@ -61,9 +61,9 @@ export const Channel = (props: any) => {
             </div>
 
 
-            <div className="nes-field mt-2">
-                <input ref={chatInputRef} type="text" id="message" className="nes-input" placeholder="Enter your message..." onKeyDown={onEnterKey} onChange={(e) => setMessage(e.target.value)} />
-                <button onClick={() => handleUpstream(message)}>Send</button>
+            <div className="flex flex-row nes-field mt-2">
+                <input ref={chatInputRef} type="text" id="message" className="nes-input shrink cursor-text" placeholder="Enter your message..." onKeyDown={onEnterKey} onChange={(e) => setMessage(e.target.value)} />
+                <button type="button" className="nes-btn cursot-pointer" onClick={() => handleUpstream(message)}>Send</button>
             </div>
         </div>
     )

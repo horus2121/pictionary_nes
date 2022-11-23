@@ -33,7 +33,7 @@ const usersSlice = createSlice({
                 state.username = username
                 state.authority = authority
             } else {
-                console.log(action.payload.error)
+                alert(action.payload.error)
             }
         }).addCase(loginUser.rejected, () => {
             console.log("Rejected...")
@@ -48,7 +48,7 @@ const usersSlice = createSlice({
                 state.username = username
                 state.authority = authority
             } else {
-                console.log(action.payload.error)
+                alert(action.payload.error)
             }
         }).addCase(SignUpUser.rejected, (state, action) => {
             console.log("Invalid username or password...")
