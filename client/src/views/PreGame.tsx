@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../app/hooks"
 import { RootState } from "../app/store"
 import { CreateLobby, EnterLobby } from "../features/lobbiesSlice"
@@ -8,6 +8,7 @@ import { LogoutUser } from "../features/usersSlice"
 export const PreGame = () => {
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
+    const location = useLocation()
     const lobbyID = useAppSelector((state: RootState) => state.lobbies.id)
     const [id, setID] = useState<number | null>(null)
     const [lobbyList, setLobbyList] = useState([])
@@ -20,10 +21,12 @@ export const PreGame = () => {
 
     useEffect(() => {
 
-        fetch('/lobbies')
-            .then(res => res.json())
-            .then(json => setLobbyList(json.lobbies))
-            .catch(error => console.log(error))
+        if (location.pathname === "/pregame") {
+            fetch('/lobbies')
+                .then(res => res.json())
+                .then(json => setLobbyList(json.lobbies))
+                .catch(error => console.log(error))
+        }
 
     }, [lobbyList])
 

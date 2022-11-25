@@ -10,11 +10,11 @@ export const Nav = () => {
     const lobbyID = useAppSelector((state: RootState) => state.lobbies.id)
 
     const handleHome = () => {
-        navigate('/')
         if (lobbyID) {
             dispatch(QuitLobby(lobbyID))
         }
         dispatch(LogoutUser())
+        navigate('/')
     }
 
     const handleProfile = () => {
@@ -25,15 +25,14 @@ export const Nav = () => {
         if (lobbyID) {
             dispatch(QuitLobby(lobbyID))
         }
-        navigate('/pregame')
     }
 
     const handleQuitGame = () => {
-        navigate('/')
         if (lobbyID) {
             dispatch(QuitLobby(lobbyID))
         }
         dispatch(LogoutUser())
+        navigate('/')
     }
 
     return (

@@ -9,6 +9,7 @@ class SessionsController < ApplicationController
         if user&.authenticate(params[:password])
 
             if session[:current_user_id] == user.id
+
                 render json: { 
                         logged_in: true,
                         user: UserSerializer.new(user),

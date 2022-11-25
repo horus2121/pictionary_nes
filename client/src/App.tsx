@@ -15,21 +15,21 @@ import { Home } from './views/Home';
 import { Profile } from './views/Profile';
 
 export const App = () => {
-  const dispatch = useAppDispatch()
+  // const dispatch = useAppDispatch()
   const user = useAppSelector((state: RootState) => state.users)
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    fetch('/me').then(res => {
-      if (res.ok) {
-        res.json().then(user => {
-          dispatch({ type: 'users/loginUser', payload: user })
-        })
-      }
-    }).catch(err => {
-      console.log(err)
-    })
-  }, [])
+  //   fetch('/me').then(res => {
+  //     if (res.ok) {
+  //       res.json().then(user => {
+  //         dispatch({ type: 'users/loginUser', payload: user })
+  //       })
+  //     }
+  //   }).catch(err => {
+  //     console.log(err)
+  //   })
+  // }, [])
 
   return (
     <Router>

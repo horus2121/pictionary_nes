@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { Canvas } from "../components/Canvas";
 import { Channel } from "../components/Channel";
@@ -14,6 +14,7 @@ import { QuitLobby } from "../features/lobbiesSlice";
 export const Game = () => {
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
+    const location = useLocation()
     const canvasRef = useRef(null)
     const chatListRef = useRef<any>(null)
     const chatInputRef = useRef<any>(null)
@@ -224,31 +225,47 @@ export const Game = () => {
         const scoreboard = scoreboardRef.current
 
         if (scoreboard.children.length < currentLobbyUsers.length) {
+
             currentLobbyUsers && currentLobbyUsers.forEach((user: any) => {
 
-                const newDiv = document.createElement('div')
-                const newLable = document.createElement('lable')
-                const newSpan = document.createElement('span')
-                const newProgress = document.createElement('progress')
+                const isExisted = Array.from(scoreboard.children).some((element: any) => element.className === `div${user.id}` ? true : false)
 
-                newSpan.innerHTML = user.username
-                newSpan.className = "nes-text is-success"
+                if (!isExisted) {
+                    const newDiv = document.createElement('div')
+                    const newLable = document.createElement('lable')
+                    const newSpan = document.createElement('span')
+                    const newProgress = document.createElement('progress')
 
-                // <progress className="nes-progress" id={user.id} key={user.id} value={score} max="100"></progress>
-                newProgress.className = "nes-progress"
-                newProgress.id = `progress${user.id}`
-                newProgress.value = 0
-                newProgress.max = 100
-                newProgress.innerHTML = user.username
+                    newDiv.className = `div${user.id}`
+                    newSpan.innerHTML = user.username
+                    newSpan.className = "nes-text is-success"
 
-                newLable.appendChild(newSpan)
-                newDiv.appendChild(newLable)
-                newDiv.appendChild(newProgress)
-                scoreboard.appendChild(newDiv)
+                    // <progress className="nes-progress" id={user.id} key={user.id} value={score} max="100"></progress>
+                    newProgress.className = "nes-progress"
+                    newProgress.id = `progress${user.id}`
+                    newProgress.value = 0
+                    newProgress.max = 100
+                    newProgress.innerHTML = user.username
+
+                    newLable.appendChild(newSpan)
+                    newDiv.appendChild(newLable)
+                    newDiv.appendChild(newProgress)
+                    scoreboard.appendChild(newDiv)
+                }
 
             })
-        } else if (scoreboard.children.length > currentLobbyUsers.length) {
-            scoreboard.firstChild.remove()
+        } else {
+
+            Array.from(scoreboard.children) && Array.from(scoreboard.children).forEach((element: any) => {
+
+                const isPresentUser = currentLobbyUsers.some((user: any) => element.className === `div${user.id}` ? true : false)
+
+                if (!isPresentUser) {
+                    const absentUser = document.querySelector(`.${element.className}`)
+                    absentUser?.parentNode?.removeChild(absentUser)
+                }
+            })
+
         }
 
     }, [currentLobbyUsers])
@@ -265,18 +282,18 @@ export const Game = () => {
 
     useEffect(() => {
 
-        if (!lobby.id) return
-        fetch('/lobbies/' + lobby.id)
-            .then(res => res.json())
-            .then(json => {
-                if (user.id === json.lobby.user_id) {
-                    setIsLobbyOwner(true)
-                } else {
-                    setIsLobbyOwner(false)
-                }
-            })
-            .catch(err => console.log(err))
-
+        if (lobby.id && location.pathname === `/lobbies/${lobby.id}`) {
+            fetch('/lobbies/' + lobby.id)
+                .then(res => res.json())
+                .then(json => {
+                    if (user.id === json.lobby.user_id) {
+                        setIsLobbyOwner(true)
+                    } else {
+                        setIsLobbyOwner(false)
+                    }
+                })
+                .catch(err => console.log(err))
+        }
 
     }, [user, lobby, currentLobbyUsers])
 
@@ -314,9 +331,6 @@ export const Game = () => {
         let { total, hours, minutes, seconds } = getTimeRemaining(e)
         if (total >= 0) {
 
-            // update the timer
-            // check if less than 10 then we need to 
-            // add '0' at the beginning of the variable
             setTimer(
                 (hours > 9 ? hours : '0' + hours) + ':' +
                 (minutes > 9 ? minutes : '0' + minutes) + ':'
@@ -346,10 +360,20 @@ export const Game = () => {
         clearTimer(getDeadTime());
     }
 
+    useEffect(() => {
+
+        window.addEventListener("beforeunload", () => {
+            dispatch(QuitLobby(lobby.id))
+        })
+
+        return () => window.removeEventListener("beforeunload", () => {
+            dispatch(QuitLobby(lobby.id))
+        })
+    }, [])
+
     return (
         <div className='grid grid-cols-7 gap-3'>
             <PlayerList
-                currentLobbyUsers={currentLobbyUsers}
                 setCurrentLobbyUsers={setCurrentLobbyUsers} />
             <WordGenerator
                 word={word}
