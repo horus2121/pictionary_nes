@@ -41,12 +41,13 @@ const usersSlice = createSlice({
             console.log("Loading...")
         }).addCase(SignUpUser.fulfilled, (state, action) => {
             if (action.payload.success) {
-                const { id, username, authority } = action.payload.user
+                // const { id, username, authority } = action.payload.user
 
-                state.isLoggedIn = true
-                state.id = id
-                state.username = username
-                state.authority = authority
+                // state.isLoggedIn = true
+                // state.id = id
+                // state.username = username
+                // state.authority = authority
+                alert("You've created a new account!")
             } else {
                 alert(action.payload.error)
             }

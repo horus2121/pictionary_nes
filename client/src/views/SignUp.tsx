@@ -15,12 +15,12 @@ export const SignUp = () => {
     const [password, setPassword] = useState('')
     const [passwordConfirmation, setPasswordConfirmation] = useState('')
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        if (user.isLoggedIn) {
-            navigate('/pregame')
-        }
-    }, [user, navigate])
+    //     if (user.isLoggedIn) {
+    //         navigate('/pregame')
+    //     }
+    // }, [user, navigate])
 
     const handleSubmit = (event: any) => {
         event.preventDefault();
@@ -39,6 +39,7 @@ export const SignUp = () => {
         }
 
         dispatch(SignUpUser(user))
+        navigate('/login')
     }
 
     const handleGoBack = () => {
